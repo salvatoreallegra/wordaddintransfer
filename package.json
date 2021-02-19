@@ -27,11 +27,13 @@
     "watch": "webpack --mode development --watch"
   },
   "dependencies": {
+    "axios": "^0.21.1",
     "core-js": "^3.1.4",
     "es6-promise": "^4.2.8",
     "office-ui-fabric-react": "^7.10.0",
     "react": "^16.8.2",
-    "react-dom": "^16.8.2"
+    "react-dom": "^16.8.2",
+    "uuidv4": "^6.2.6"
   },
   "devDependencies": {
     "@babel/core": "^7.11.6",

@@ -7,6 +7,7 @@ import Progress from "./Progress";
 import "../../../assets/icon-16.png";
 import "../../../assets/icon-32.png";
 import "../../../assets/icon-80.png";
+import { GroupedComponent } from "./GroupedComponent";
 /* global Button Header, HeroList, HeroListItem, Progress, Word */
 
 export interface AppProps {
@@ -77,6 +78,7 @@ export default class App extends React.Component<AppProps, AppState> {
           <p className="ms-font-l">
             Modify the source files, then click <b>Run</b>.
           </p>
+          <GroupedComponent />
           <Button
             className="ms-welcome__action"
             buttonType={ButtonType.hero}
