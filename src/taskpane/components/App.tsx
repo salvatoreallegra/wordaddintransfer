@@ -8,6 +8,7 @@ import "../../../assets/icon-16.png";
 import "../../../assets/icon-32.png";
 import "../../../assets/icon-80.png";
 import { GroupedComponent } from "./GroupedComponent";
+import { MultiLineTextBox } from "./MultiLineTextBox";
 /* global Button Header, HeroList, HeroListItem, Progress, Word */
 
 export interface AppProps {
@@ -87,6 +88,7 @@ export default class App extends React.Component<AppProps, AppState> {
           >
             Run
           </Button>
+          <MultiLineTextBox />
         </HeroList>
       </div>
     );

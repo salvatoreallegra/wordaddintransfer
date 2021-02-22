@@ -75,6 +75,17 @@ let xmlDoc =
   '<condition attribute="statecode" operator="eq" value="0" />' +
   "</filter>" +
   "</entity>" +
+  '<entity name="case">' +
+  '<attribute name="caseId" />' +
+  '<attribute name="description" />' +
+  '<attribute name="createdon" />' +
+  '<attribute name="incidentid" />' +
+  '<attribute name="caseorigincode" />' +
+  '<order attribute="title" descending="false" />' +
+  '<filter type="and">' +
+  '<condition attribute="statecode" operator="eq" value="0" />' +
+  "</filter>" +
+  "</entity>" +
   "</fetch>";
 
 //must pass fetchxml string when creating object
@@ -162,6 +173,7 @@ export class GroupedComponent extends React.Component<{}, IDetailsListGroupedExa
     return Word.run(async context => {
       var serviceNameRange = context.document.getSelection();
       var serviceNameContentControl = serviceNameRange.insertContentControl();
+      //serviceNameContentControl.subtype  //gets content control type
       //serviceNameContentControl.title = "Service Name";
       serviceNameContentControl.title = item.name;
       serviceNameContentControl.tag = "serviceName";
@@ -171,7 +183,15 @@ export class GroupedComponent extends React.Component<{}, IDetailsListGroupedExa
     });
   };
 
-  updateContentControls = () => {
+  // updateContentControls = () => {
+  //   return Word.run(async context => {
+  //     var serviceNameContentControl = context.document.contentControls.getByTag("serviceName").getFirst();
+  //     serviceNameContentControl.insertText("Fabrikam Online Productivity Suite", "Replace");
+  //     await context.sync();
+  //   });
+  // };
+
+  add = () => {
     return Word.run(async context => {
       var serviceNameContentControl = context.document.contentControls.getByTag("serviceName").getFirst();
       serviceNameContentControl.insertText("Fabrikam Online Productivity Suite", "Replace");
@@ -184,7 +204,7 @@ export class GroupedComponent extends React.Component<{}, IDetailsListGroupedExa
 
     return (
       <div>
-        <div className={controlWrapperClass}>
+        {/* <div className={controlWrapperClass}>
           <DefaultButton onClick={this._addItem} text="Add an item" styles={addItemButtonStyles} />
           <Toggle
             label="Compact mode"
@@ -200,7 +220,7 @@ export class GroupedComponent extends React.Component<{}, IDetailsListGroupedExa
             onChange={this._onShowItemIndexInViewChanged}
             styles={toggleStyles}
           />
-        </div>
+        </div> */}
         <DetailsList
           componentRef={this._root}
           items={items}
@@ -221,41 +241,49 @@ export class GroupedComponent extends React.Component<{}, IDetailsListGroupedExa
           onRenderItemColumn={this._onRenderColumn}
           compact={isCompactMode}
         />
-        <Button
+        {/* <Button
           className="ms-welcome__action"
           buttonType={ButtonType.hero}
           iconProps={{ iconName: "ChevronRight" }}
           onClick={this.updateContentControls}
         >
           Update Content Controls
+        </Button> */}
+        <Button
+          className="ms-welcome__action"
+          buttonType={ButtonType.hero}
+          iconProps={{ iconName: "ChevronRight" }}
+          onClick={this.add}
+        >
+          Add
         </Button>
       </div>
     );
   }
 
-  private _addItem = (): void => {
-    const items = this.state.items;
-    const groups = [...this.state.groups];
-    groups[_blueGroupIndex].count++;
+  // private _addItem = (): void => {
+  //   const items = this.state.items;
+  //   const groups = [...this.state.groups];
+  //   groups[_blueGroupIndex].count++;
 
-    this.setState(
-      {
-        items: items.concat([
-          {
-            key: "item-" + items.length,
-            name: "New item " + items.length,
-            color: "blue"
-          }
-        ]),
-        groups
-      },
-      () => {
-        if (this._root.current) {
-          this._root.current.focusIndex(items.length, true);
-        }
-      }
-    );
-  };
+  //   this.setState(
+  //     {
+  //       items: items.concat([
+  //         {
+  //           key: "item-" + items.length,
+  //           name: "New item " + items.length,
+  //           color: "blue"
+  //         }
+  //       ]),
+  //       groups
+  //     },
+  //     () => {
+  //       if (this._root.current) {
+  //         this._root.current.focusIndex(items.length, true);
+  //       }
+  //     }
+  //   );
+  // };
 
   private _onRenderDetailsHeader(props: IDetailsHeaderProps, _defaultRender?: IRenderFunction<IDetailsHeaderProps>) {
     return <DetailsHeader {...props} ariaLabelForToggleAllGroupsButton={"Expand collapse groups"} />;
