@@ -2,6 +2,7 @@ import * as React from "react";
 import axios from "axios";
 import { Button, ButtonType } from "office-ui-fabric-react";
 import { FetchXMLHelper } from "../../helpers/fetchXMLParser";
+import { MultiLineTextBox } from "./MultiLineTextBox";
 import {
   DefaultButton,
   DetailsHeader,
@@ -40,27 +41,10 @@ export interface IDetailsListGroupedExampleState {
   groups: IGroup[];
   showItemIndexInView: boolean;
   isCompactMode: boolean;
+  textBoxText: string;
 }
 
 const _blueGroupIndex = 2;
-
-// function grabFetchXMLFromDoc() {
-//   return (
-//     '<fetch version="1.0" output-format="xml-platform" mapping="logical" distinct="false">' +
-//     '<entity name="incident">' +
-//     '<attribute name="title" />' +
-//     '<attribute name="ticketnumber" />' +
-//     '<attribute name="createdon" />' +
-//     '<attribute name="incidentid" />' +
-//     '<attribute name="caseorigincode" />' +
-//     '<order attribute="title" descending="false" />' +
-//     '<filter type="and">' +
-//     '<condition attribute="statecode" operator="eq" value="0" />' +
-//     "</filter>" +
-//     "</entity>" +
-//     "</fetch>"
-//   );
-// }
 
 let xmlDoc =
   '<fetch version="1.0" output-format="xml-platform" mapping="logical" distinct="false">' +
@@ -124,7 +108,8 @@ export class GroupedComponent extends React.Component<{}, IDetailsListGroupedExa
 
       groups: groups,
       showItemIndexInView: false,
-      isCompactMode: false
+      isCompactMode: false,
+      textBoxText: ""
     };
 
     this._columns = [
@@ -173,8 +158,15 @@ export class GroupedComponent extends React.Component<{}, IDetailsListGroupedExa
     return Word.run(async context => {
       var serviceNameRange = context.document.getSelection();
       var serviceNameContentControl = serviceNameRange.insertContentControl();
-      //serviceNameContentControl.subtype  //gets content control type
-      //serviceNameContentControl.title = "Service Name";
+
+      serviceNameContentControl.set({
+        color: "red",
+        title: "Odd ContentControl #" + (i + 1),
+        appearance: "Tags"
+      });
+
+      //serviceNameContentControl.subtype; //gets content control type
+      serviceNameContentControl.title = "Service Name";
       serviceNameContentControl.title = item.name;
       serviceNameContentControl.tag = "serviceName";
       serviceNameContentControl.appearance = "Tags";
@@ -197,6 +189,9 @@ export class GroupedComponent extends React.Component<{}, IDetailsListGroupedExa
       serviceNameContentControl.insertText("Fabrikam Online Productivity Suite", "Replace");
       await context.sync();
     });
+  };
+  setTextBox = () => {
+    this.setState({ textBoxText: "" });
   };
 
   public render() {
@@ -249,11 +244,13 @@ export class GroupedComponent extends React.Component<{}, IDetailsListGroupedExa
         >
           Update Content Controls
         </Button> */}
+
+        <MultiLineTextBox />
         <Button
           className="ms-welcome__action"
           buttonType={ButtonType.hero}
           iconProps={{ iconName: "ChevronRight" }}
-          onClick={this.add}
+          onClick={this.setTextBox}
         >
           Add
         </Button>
@@ -296,11 +293,11 @@ export class GroupedComponent extends React.Component<{}, IDetailsListGroupedExa
     return <div data-is-focusable={true}>{value}</div>;
   }
 
-  private _onShowItemIndexInViewChanged = (_event: React.MouseEvent<HTMLInputElement>, checked: boolean): void => {
-    this.setState({ showItemIndexInView: checked });
-  };
+  // private _onShowItemIndexInViewChanged = (_event: React.MouseEvent<HTMLInputElement>, checked: boolean): void => {
+  //   this.setState({ showItemIndexInView: checked });
+  // };
 
-  private _onChangeCompactMode = (_ev: React.MouseEvent<HTMLElement>, checked: boolean): void => {
-    this.setState({ isCompactMode: checked });
-  };
+  // private _onChangeCompactMode = (_ev: React.MouseEvent<HTMLElement>, checked: boolean): void => {
+  //   this.setState({ isCompactMode: checked });
+  // };
 }

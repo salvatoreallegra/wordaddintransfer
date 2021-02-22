@@ -1,5 +1,8 @@
 import * as React from "react";
+import { useState } from "react";
 import { TextField } from "office-ui-fabric-react/lib/TextField";
+import { Button, ButtonType } from "office-ui-fabric-react";
+
 import { useBoolean } from "@uifabric/react-hooks";
 import { lorem } from "@uifabric/example-data";
 import { Stack, IStackProps, IStackStyles } from "office-ui-fabric-react/lib/Stack";
@@ -12,13 +15,28 @@ const columnProps: Partial<IStackProps> = {
   styles: { root: { width: 300 } }
 };
 
-export const MultiLineTextBox: React.FunctionComponent = () => {
+export const MultiLineTextBox: React.FunctionComponent = props => {
   const [multiline, { toggle: toggleMultiline }] = useBoolean(false);
-  const onChange = (ev: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, newText: string): void => {
-    const newMultiline = newText.length > 50;
-    if (newMultiline !== multiline) {
-      toggleMultiline();
-    }
-  };
-  return <TextField label="Standard" multiline rows={3} onChange={onChange} />;
+  //const [count, setCount] = useState(0);
+  // const onChange = (ev: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, newText: string): void => {
+  //   const newMultiline = newText.length > 50;
+  //   if (newMultiline !== multiline) {
+  //     toggleMultiline();
+  //   }
+  // };
+
+  //function add() {}
+  return (
+    <div>
+      <TextField label="Enter FetchXML" multiline rows={3} /* onChange={onChange}*/ />
+      {/* <Button
+        className="ms-welcome__action"
+        buttonType={ButtonType.hero}
+        iconProps={{ iconName: "ChevronRight" }}
+        onClick={add}
+      >
+        Add
+      </Button> */}
+    </div>
+  );
 };

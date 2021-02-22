@@ -8,7 +8,6 @@ import "../../../assets/icon-16.png";
 import "../../../assets/icon-32.png";
 import "../../../assets/icon-80.png";
 import { GroupedComponent } from "./GroupedComponent";
-import { MultiLineTextBox } from "./MultiLineTextBox";
 /* global Button Header, HeroList, HeroListItem, Progress, Word */
 
 export interface AppProps {
@@ -74,22 +73,22 @@ export default class App extends React.Component<AppProps, AppState> {
 
     return (
       <div className="ms-welcome">
-        <Header logo="assets/logo-filled.png" title={this.props.title} message="Welcome" />
-        <HeroList message="Discover what Office Add-ins can do for you today!" items={this.state.listItems}>
-          <p className="ms-font-l">
+        <Header logo="assets/logo-filled.png" title={this.props.title} message="PACTS Word Add-In" />
+        {/* <HeroList message="Discover what Office Add-ins can do for you today!" items={this.state.listItems}> */}
+        {/* <p className="ms-font-l">
             Modify the source files, then click <b>Run</b>.
-          </p>
-          <GroupedComponent />
-          <Button
+          </p> */}
+        <GroupedComponent />
+        {/* <Button
             className="ms-welcome__action"
             buttonType={ButtonType.hero}
             iconProps={{ iconName: "ChevronRight" }}
             onClick={this.click}
           >
             Run
-          </Button>
-          <MultiLineTextBox />
-        </HeroList>
+          </Button> */}
+
+        {/* </HeroList> */}
       </div>
     );
   }
