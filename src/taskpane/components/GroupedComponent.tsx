@@ -47,6 +47,7 @@ export interface IDetailsListGroupedExampleState {
 const _blueGroupIndex = 2;
 
 let xmlDoc =
+  "<AddIn xmlns='http://schemas.contoso.com/review/1.0'>" +
   '<fetch version="1.0" output-format="xml-platform" mapping="logical" distinct="false">' +
   '<entity name="incident">' +
   '<attribute name="title" />' +
@@ -70,7 +71,8 @@ let xmlDoc =
   '<condition attribute="statecode" operator="eq" value="0" />' +
   "</filter>" +
   "</entity>" +
-  "</fetch>";
+  "</fetch>" +
+  "</AddIn>";
 
 //must pass fetchxml string when creating object
 const fetchXMLHelper = new FetchXMLHelper(xmlDoc);
@@ -159,11 +161,11 @@ export class GroupedComponent extends React.Component<{}, IDetailsListGroupedExa
       var serviceNameRange = context.document.getSelection();
       var serviceNameContentControl = serviceNameRange.insertContentControl();
 
-      serviceNameContentControl.set({
-        color: "red",
-        title: "Odd ContentControl #" + (i + 1),
-        appearance: "Tags"
-      });
+      // serviceNameContentControl.set({
+      //   color: "red",
+      //   title: "Odd ContentControl #" + (i + 1),
+      //   appearance: "Tags"
+      // });
 
       //serviceNameContentControl.subtype; //gets content control type
       serviceNameContentControl.title = "Service Name";
@@ -190,8 +192,32 @@ export class GroupedComponent extends React.Component<{}, IDetailsListGroupedExa
       await context.sync();
     });
   };
-  setTextBox = () => {
-    this.setState({ textBoxText: "" });
+
+  setGetXMLPart = () => {
+    // console.log("onclick worked");
+    // const xmlString =
+    //   "<Reviewers xmlns='http://schemas.contoso.com/review/1.0'><Reviewer>Juan</Reviewer><Reviewer>Hong</Reviewer><Reviewer>Sally</Reviewer></Reviewers>";
+    // Office.context.document.customXmlParts.addAsync(xmlString, asyncResult => {
+    //   console.log(asyncResult.value.id);
+    //   asyncResult.value.getXmlAsync(asyncResult => {
+    //     console.log(asyncResult.value);
+    //   });
+    // });
+    //debugger;
+    // const xmlString =
+    //   "<Reviewers xmlns='http://schemas.contoso.com/review/1.0'><Reviewer>Juan</Reviewer><Reviewer>Hong</Reviewer><Reviewer>Sally</Reviewer></Reviewers>";
+    // Office.context.document.customXmlParts.addAsync(xmlString, asyncResult => {
+    //   Office.context.document.settings.set("ReviewersID", asyncResult.value.id);
+    //   console.log("Async id", asyncResult.value.id);
+    //   Office.context.document.settings.saveAsync();
+    // });
+    const reviewersXmlId = Office.context.document.settings.get("ReviewersID");
+    Office.context.document.customXmlParts.getByIdAsync(reviewersXmlId, asyncResult => {
+      asyncResult.value.getXmlAsync(asyncResult => {
+        console.log("Value Based on ID  ", asyncResult.value);
+        console.log("Office settings ", Office.context.document.settings);
+      });
+    });
   };
 
   public render() {
@@ -250,7 +276,7 @@ export class GroupedComponent extends React.Component<{}, IDetailsListGroupedExa
           className="ms-welcome__action"
           buttonType={ButtonType.hero}
           iconProps={{ iconName: "ChevronRight" }}
-          onClick={this.setTextBox}
+          onClick={this.setGetXMLPart}
         >
           Add
         </Button>
