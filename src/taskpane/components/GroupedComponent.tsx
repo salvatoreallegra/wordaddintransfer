@@ -1,5 +1,7 @@
 import * as React from "react";
 import axios from "axios";
+import { TextField } from "office-ui-fabric-react/lib/TextField";
+
 import { Button, ButtonType } from "office-ui-fabric-react";
 import { FetchXMLHelper } from "../../helpers/fetchXMLParser";
 import { MultiLineTextBox } from "./MultiLineTextBox";
@@ -42,47 +44,64 @@ export interface IDetailsListGroupedExampleState {
   showItemIndexInView: boolean;
   isCompactMode: boolean;
   textBoxText: string;
+  value: string;
 }
 
 const _blueGroupIndex = 2;
 
-let xmlDoc =
-  "<AddIn xmlns='http://schemas.contoso.com/review/1.0'>" +
-  '<fetch version="1.0" output-format="xml-platform" mapping="logical" distinct="false">' +
-  '<entity name="incident">' +
-  '<attribute name="title" />' +
-  '<attribute name="ticketnumber" />' +
-  '<attribute name="createdon" />' +
-  '<attribute name="incidentid" />' +
-  '<attribute name="caseorigincode" />' +
-  '<order attribute="title" descending="false" />' +
-  '<filter type="and">' +
-  '<condition attribute="statecode" operator="eq" value="0" />' +
-  "</filter>" +
-  "</entity>" +
-  '<entity name="case">' +
-  '<attribute name="caseId" />' +
-  '<attribute name="description" />' +
-  '<attribute name="createdon" />' +
-  '<attribute name="incidentid" />' +
-  '<attribute name="caseorigincode" />' +
-  '<order attribute="title" descending="false" />' +
-  '<filter type="and">' +
-  '<condition attribute="statecode" operator="eq" value="0" />' +
-  "</filter>" +
-  "</entity>" +
-  "</fetch>" +
-  "</AddIn>";
+// let xmlDoc =
+//   "<AddIn xmlns='http://schemas.pacts.com/datas/1.0'>" +
+//   '<fetch version="1.0" output-format="xml-platform" mapping="logical" distinct="false">' +
+//   '<entity name="incident">' +
+//   '<attribute name="title" />' +
+//   '<attribute name="ticketnumber" />' +
+//   '<attribute name="createdon" />' +
+//   '<attribute name="incidentid" />' +
+//   '<attribute name="caseorigincode" />' +
+//   '<order attribute="title" descending="false" />' +
+//   '<filter type="and">' +
+//   '<condition attribute="statecode" operator="eq" value="0" />' +
+//   "</filter>" +
+//   "</entity>" +
+//   '<entity name="case">' +
+//   '<attribute name="caseId" />' +
+//   '<attribute name="description" />' +
+//   '<attribute name="createdon" />' +
+//   '<attribute name="incidentid" />' +
+//   '<attribute name="caseorigincode" />' +
+//   '<order attribute="title" descending="false" />' +
+//   '<filter type="and">' +
+//   '<condition attribute="statecode" operator="eq" value="0" />' +
+//   "</filter>" +
+//   "</entity>" +
+//   "</fetch>" +
+//   "</AddIn>";
 
-//must pass fetchxml string when creating object
-const fetchXMLHelper = new FetchXMLHelper(xmlDoc);
-fetchXMLHelper.parseFetchXML();
-console.log("Fetchxmlhelper   ", fetchXMLHelper);
+//   "<AddIn xmlns='http://schemas.pacts.com/datas/1.0'>" +
+//   '<fetch version="1.0" output-format="xml-platform" mapping="logical" distinct="false">' +
+//   '<entity name="incident">' +
+//   '<attribute name="title" />' +
+//   '<attribute name="ticketnumber" />' +
+//   '<attribute name="createdon" />' +
+//   '<attribute name="incidentid" />' +
+//   '<attribute name="caseorigincode" />' +
+//   '<order attribute="title" descending="false" />' +
+//   '<filter type="and">' +
+//   '<condition attribute="statecode" operator="eq" value="0" />' +
+//   "</filter>" +
+//   "</entity>" +
+//   "</fetch>" +
+//   "</AddIn>";
 
-//we will use this items variable in our initial state below
-const items = fetchXMLHelper.getStrippedItems();
-const groups = fetchXMLHelper.getStrippedGroups();
-console.log("Items>>>>>>>> ", items);
+// //must pass fetchxml string when creating object
+// const fetchXMLHelper = new FetchXMLHelper(xmlDoc);
+// fetchXMLHelper.parseFetchXML();
+// console.log("Fetchxmlhelper   ", fetchXMLHelper);
+
+// //we will use this items variable in our initial state below
+// const items = fetchXMLHelper.getStrippedItems();
+// const groups = fetchXMLHelper.getStrippedGroups();
+// console.log("Items>>>>>>>> ", items);
 
 export class GroupedComponent extends React.Component<{}, IDetailsListGroupedExampleState> {
   private _root = React.createRef<IDetailsList>();
@@ -92,37 +111,38 @@ export class GroupedComponent extends React.Component<{}, IDetailsListGroupedExa
     super(props);
 
     this.state = {
-      items: items,
-      //[
-      //   { key: "a", name: "ContactId", color: "red" },
-      //   { key: "b", name: "b", color: "red" },
-      //   { key: "x", name: "xyz", color: "gold" },
-      //   { key: "c", name: "c", color: "blue" },
-      //   { key: "d", name: "d", color: "blue" },
-      //   { key: "e", name: "e", color: "blue" }
-      //]
-      // This is based on the definition of items
-      // groups: [
-      //   { key: "groupred0", name: 'Offender: "Blue"', startIndex: 0, count: 2, level: 0 },
-      //   { key: "groupgreen2", name: 'Crimes: "green"', startIndex: 2, count: 0, level: 0 },
-      //   { key: "groupblue2", name: 'Drug Use: "blue"', startIndex: 2, count: 3, level: 0 }
-      // ]
-
-      groups: groups,
+      items: [],
+      groups: [],
       showItemIndexInView: false,
       isCompactMode: false,
-      textBoxText: ""
+      textBoxText: "",
+      value: ""
     };
 
     this._columns = [
       { key: "name", name: "Tables and Fields", fieldName: "name", minWidth: 100, maxWidth: 200, isResizable: true }
       //  { key: "color", name: "Color", fieldName: "color", minWidth: 100, maxWidth: 200 }
     ];
+
+    this.handleChange = this.handleChange.bind(this);
   }
 
   //Get the names or something so I can operate on content controls
 
   //Fetch xml is embedded in the document somewhere, grab it so I can make an axios request to CDS
+
+  //Next sprint fetch the xml from a tables called report datasets, will make api
+  //will grab everything in the reports table  it iwll retrieve in this format one entity per in table
+  // '<entity name="incident">' +
+  //   '<attribute name="title" />' +
+  //   '<attribute name="ticketnumber" />' +
+  //   '<attribute name="createdon" />' +
+  //   '<attribute name="incidentid" />' +
+  //   '<attribute name="caseorigincode" />'
+  //  after getting this will store each result as a xml part stored in the doc
+  //  this is what will be displayed in the grid
+  // when doc is reopened, all the xml parts will be displayed in the grid
+  // set the name of each xml part to the name of the enity in the fetchxml
 
   runOnMount = async () => {
     return Word.run(async context => {
@@ -139,14 +159,35 @@ export class GroupedComponent extends React.Component<{}, IDetailsListGroupedExa
       await context.sync();
     });
   };
+
+  populateGridFromXmlPart = async () => {
+    return Word.run(async context => {
+      const pactsXmlId = Office.context.document.settings.get("PactsXml");
+
+      Office.context.document.customXmlParts.getByIdAsync(pactsXmlId, asyncResult => {
+        asyncResult.value.getXmlAsync(asyncResult => {
+          console.log("Value Based on ID  ", asyncResult.value);
+          console.log("Office settings ", Office.context.document.settings);
+          const fetchXMLHelper = new FetchXMLHelper(asyncResult.value);
+          fetchXMLHelper.parseFetchXML();
+
+          //we will use this items variable in our initial state below
+          const items = fetchXMLHelper.getStrippedItems();
+          const groups = fetchXMLHelper.getStrippedGroups();
+          console.log("Items on Mount>>>>>>>> ", items);
+          console.log("Groups on Mount>>>>>>>>>>", groups);
+          this.setState({ items: items });
+          this.setState({ groups: groups });
+        });
+      });
+      console.log(">>>>>>>>>>>>> Jubby");
+      await context.sync();
+    });
+  };
   public componentDidMount() {
     this.runOnMount();
-    axios.get(`https://jsonplaceholder.typicode.com/users`).then(res => {
-      const persons = res.data;
-      // this.setState({ apiData: persons });
-      console.log(persons);
-      // console.log("Data from state ", this.state.apiData);
-    });
+
+    this.populateGridFromXmlPart();
   }
 
   public componentWillUnmount() {
@@ -194,6 +235,7 @@ export class GroupedComponent extends React.Component<{}, IDetailsListGroupedExa
   };
 
   setGetXMLPart = () => {
+    console.log(this.state.value);
     // console.log("onclick worked");
     // const xmlString =
     //   "<Reviewers xmlns='http://schemas.contoso.com/review/1.0'><Reviewer>Juan</Reviewer><Reviewer>Hong</Reviewer><Reviewer>Sally</Reviewer></Reviewers>";
@@ -204,21 +246,24 @@ export class GroupedComponent extends React.Component<{}, IDetailsListGroupedExa
     //   });
     // });
     //debugger;
-    // const xmlString =
-    //   "<Reviewers xmlns='http://schemas.contoso.com/review/1.0'><Reviewer>Juan</Reviewer><Reviewer>Hong</Reviewer><Reviewer>Sally</Reviewer></Reviewers>";
+    // const xmlString = xmlDoc;
     // Office.context.document.customXmlParts.addAsync(xmlString, asyncResult => {
-    //   Office.context.document.settings.set("ReviewersID", asyncResult.value.id);
+    //   Office.context.document.settings.set("PactsXml", asyncResult.value.id);
     //   console.log("Async id", asyncResult.value.id);
     //   Office.context.document.settings.saveAsync();
     // });
-    const reviewersXmlId = Office.context.document.settings.get("ReviewersID");
-    Office.context.document.customXmlParts.getByIdAsync(reviewersXmlId, asyncResult => {
-      asyncResult.value.getXmlAsync(asyncResult => {
-        console.log("Value Based on ID  ", asyncResult.value);
-        console.log("Office settings ", Office.context.document.settings);
-      });
-    });
+    // const pactsXmlId = Office.context.document.settings.get("PactsXml");
+    // Office.context.document.customXmlParts.getByIdAsync(reviewersXmlId, asyncResult => {
+    //   asyncResult.value.getXmlAsync(asyncResult => {
+    //     console.log("Value Based on ID  ", asyncResult.value);
+    //     console.log("Office settings ", Office.context.document.settings);
+    //   });
+    // });
   };
+
+  handleChange(event) {
+    this.setState({ value: event.target.value });
+  }
 
   public render() {
     const { items, groups, isCompactMode } = this.state;
@@ -272,6 +317,7 @@ export class GroupedComponent extends React.Component<{}, IDetailsListGroupedExa
         </Button> */}
 
         <MultiLineTextBox />
+        <TextField label="Enter FetchXML" multiline rows={3} onChange={this.handleChange} />
         <Button
           className="ms-welcome__action"
           buttonType={ButtonType.hero}
