@@ -77,21 +77,23 @@ const _blueGroupIndex = 2;
 //   "</fetch>" +
 //   "</AddIn>";
 
-//   "<AddIn xmlns='http://schemas.pacts.com/datas/1.0'>" +
-//   '<fetch version="1.0" output-format="xml-platform" mapping="logical" distinct="false">' +
-//   '<entity name="incident">' +
-//   '<attribute name="title" />' +
-//   '<attribute name="ticketnumber" />' +
-//   '<attribute name="createdon" />' +
-//   '<attribute name="incidentid" />' +
-//   '<attribute name="caseorigincode" />' +
-//   '<order attribute="title" descending="false" />' +
-//   '<filter type="and">' +
-//   '<condition attribute="statecode" operator="eq" value="0" />' +
-//   "</filter>" +
-//   "</entity>" +
-//   "</fetch>" +
-//   "</AddIn>";
+//<pacts xmlns='http://pacts/entity name here'>
+let xmlDoc2 =
+  "<AddIn xmlns='http://schemas.skynet.com/dataschematest/1.0'>" +
+  '<fetch version="1.0" output-format="xml-platform" mapping="logical" distinct="false">' +
+  '<entity name="incident">' +
+  '<attribute name="title" />' +
+  '<attribute name="ticketnumber" />' +
+  '<attribute name="createdon" />' +
+  '<attribute name="incidentid" />' +
+  '<attribute name="caseorigincode" />' +
+  '<order attribute="title" descending="false" />' +
+  '<filter type="and">' +
+  '<condition attribute="statecode" operator="eq" value="0" />' +
+  "</filter>" +
+  "</entity>" +
+  "</fetch>" +
+  "</AddIn>";
 
 // //must pass fetchxml string when creating object
 // const fetchXMLHelper = new FetchXMLHelper(xmlDoc);
@@ -235,7 +237,7 @@ export class GroupedComponent extends React.Component<{}, IDetailsListGroupedExa
   };
 
   setGetXMLPart = () => {
-    console.log(this.state.value);
+    console.log("Entered xml string ", this.state.value);
     // console.log("onclick worked");
     // const xmlString =
     //   "<Reviewers xmlns='http://schemas.contoso.com/review/1.0'><Reviewer>Juan</Reviewer><Reviewer>Hong</Reviewer><Reviewer>Sally</Reviewer></Reviewers>";
@@ -245,13 +247,32 @@ export class GroupedComponent extends React.Component<{}, IDetailsListGroupedExa
     //     console.log(asyncResult.value);
     //   });
     // });
-    //debugger;
-    // const xmlString = xmlDoc;
+
+    //Creates an xmlPart and associates id with it
+    // const xmlString = xmlDoc2; //this.state.value;
+    // //Office.context.document.settings.
     // Office.context.document.customXmlParts.addAsync(xmlString, asyncResult => {
-    //   Office.context.document.settings.set("PactsXml", asyncResult.value.id);
+    //   Office.context.document.settings.set("Rogue", asyncResult.value.id);
     //   console.log("Async id", asyncResult.value.id);
     //   Office.context.document.settings.saveAsync();
     // });
+
+    //Deletes an xml part easy version, this isn't working
+    // Office.context.document.settings.remove("TestSecond");
+    // Office.context.document.settings.saveAsync();
+
+    //Deletes xml part, good version, checking to see if it works yet
+
+    const pactsXmlId = Office.context.document.settings.get("Rogue");
+    console.log(pactsXmlId);
+    Office.context.document.customXmlParts.getByIdAsync(pactsXmlId, function(result) {
+      var xmlPart = result.value;
+      xmlPart.deleteAsync(function(eventArgs) {
+        //write("The XML Part has been deleted.");
+        console.log("xml part deleted");
+      });
+    });
+
     // const pactsXmlId = Office.context.document.settings.get("PactsXml");
     // Office.context.document.customXmlParts.getByIdAsync(reviewersXmlId, asyncResult => {
     //   asyncResult.value.getXmlAsync(asyncResult => {
@@ -317,6 +338,7 @@ export class GroupedComponent extends React.Component<{}, IDetailsListGroupedExa
         </Button> */}
 
         <MultiLineTextBox />
+        {/* Might need to use the value field to clear Textfield, look at react form docs https://reactjs.org/docs/forms.html */}
         <TextField label="Enter FetchXML" multiline rows={3} onChange={this.handleChange} />
         <Button
           className="ms-welcome__action"
