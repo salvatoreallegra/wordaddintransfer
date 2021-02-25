@@ -164,7 +164,7 @@ export class GroupedComponent extends React.Component<{}, IDetailsListGroupedExa
 
   populateGridFromXmlPartOnMount = async () => {
     return Word.run(async context => {
-      const pactsXmlId = Office.context.document.settings.get("contact");
+      const pactsXmlId = Office.context.document.settings.get("case");
 
       Office.context.document.customXmlParts.getByIdAsync(pactsXmlId, asyncResult => {
         asyncResult.value.getXmlAsync(asyncResult => {
@@ -190,10 +190,14 @@ export class GroupedComponent extends React.Component<{}, IDetailsListGroupedExa
   populateGridFromXmlOnAdd = async xmlPartId => {
     return Word.run(async context => {
       console.log("From pop grid on click ...", xmlPartId);
+      // setTimeout(function() {
+      //   console.log("Hello");
+      // }, 7000);
       const pactsXmlId = Office.context.document.settings.get(xmlPartId);
-
+      debugger;
       Office.context.document.customXmlParts.getByIdAsync(pactsXmlId, asyncResult => {
         asyncResult.value.getXmlAsync(asyncResult => {
+          /****This is the problem right here, asyncResult.value is undefined */
           console.log("Value Based on ID  ", asyncResult.value);
           console.log("Office settings ", Office.context.document.settings);
           const fetchXMLHelper = new FetchXMLHelper(asyncResult.value);
@@ -277,14 +281,14 @@ export class GroupedComponent extends React.Component<{}, IDetailsListGroupedExa
 
     const pactsXmlId = Office.context.document.settings.get(xmlPartId);
     console.log("Pacts xml id ", pactsXmlId); //if null
-    debugger;
+
     if (pactsXmlId === null) {
       //create new xml part with xmlpartid as key
       const xmlString = enteredXmlString; //this.state.value;
-      console.log(xmlString);
-      console.log("Null This Time");
+
       //Office.context.document.settings.
       Office.context.document.customXmlParts.addAsync(xmlString, asyncResult => {
+        console.log("New XML Part Created");
         Office.context.document.settings.set(xmlPartId, asyncResult.value.id);
         console.log("Async id", asyncResult.value.id);
         Office.context.document.settings.saveAsync();
@@ -295,21 +299,25 @@ export class GroupedComponent extends React.Component<{}, IDetailsListGroupedExa
       const pactsXmlId = Office.context.document.settings.get(xmlPartId);
       console.log(pactsXmlId);
       Office.context.document.customXmlParts.getByIdAsync(pactsXmlId, function(result) {
+        //create new xml part with table name as key
+
         var xmlPart = result.value;
         console.log("XML Part", xmlPart);
         xmlPart.deleteAsync(function(eventArgs) {
           //write("The XML Part has been deleted.");
           console.log("xml part deleted");
+          const xmlString = enteredXmlString; //this.state.value;
+          console.log(xmlString);
+          //Office.context.document.settings.
+          Office.context.document.customXmlParts.addAsync(xmlString, asyncResult => {
+            Office.context.document.settings.set(xmlPartId, asyncResult.value.id);
+            console.log("Async id When ", asyncResult.value.id);
+            // Office.context.document.settings.saveAsync().onSuccess(() => {
+            //   this.populateGridFromXmlOnAdd(xmlPartId);
+            // });
+            Office.context.document.settings.saveAsync();
+          });
         });
-      });
-      //create new xml part with table name as key
-      const xmlString = enteredXmlString; //this.state.value;
-      console.log(xmlString);
-      //Office.context.document.settings.
-      Office.context.document.customXmlParts.addAsync(xmlString, asyncResult => {
-        Office.context.document.settings.set(xmlPartId, asyncResult.value.id);
-        console.log("Async id", asyncResult.value.id);
-        Office.context.document.settings.saveAsync();
       });
     }
     // Office.context.document.customXmlParts.getByIdAsync(pactsXmlId, asyncResult => {
@@ -318,8 +326,6 @@ export class GroupedComponent extends React.Component<{}, IDetailsListGroupedExa
     //     console.log("Office settings ", Office.context.document.settings);
     //   });
     // });
-
-    this.populateGridFromXmlOnAdd(xmlPartId);
 
     //Deletes xml part, good version
 
