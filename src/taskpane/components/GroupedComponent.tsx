@@ -79,14 +79,14 @@ const _blueGroupIndex = 2;
 
 //<pacts xmlns='http://pacts/entity name here'>
 let xmlDoc2 =
-  "<AddIn xmlns='http://schemas.skynet.com/dataschematest/1.0'>" +
+  "<AddIn xmlns='http://schemas.pacts.com/'>" +
   '<fetch version="1.0" output-format="xml-platform" mapping="logical" distinct="false">' +
-  '<entity name="incident">' +
-  '<attribute name="title" />' +
-  '<attribute name="ticketnumber" />' +
+  '<entity name="case">' +
+  '<attribute name="caseId" />' +
+  '<attribute name="iolation" />' +
   '<attribute name="createdon" />' +
-  '<attribute name="incidentid" />' +
-  '<attribute name="caseorigincode" />' +
+  '<attribute name="whatever" />' +
+  '<attribute name="caseworkername" />' +
   '<order attribute="title" descending="false" />' +
   '<filter type="and">' +
   '<condition attribute="statecode" operator="eq" value="0" />' +
@@ -162,9 +162,9 @@ export class GroupedComponent extends React.Component<{}, IDetailsListGroupedExa
     });
   };
 
-  populateGridFromXmlPart = async () => {
+  populateGridFromXmlPartOnMount = async () => {
     return Word.run(async context => {
-      const pactsXmlId = Office.context.document.settings.get("PactsXml");
+      const pactsXmlId = Office.context.document.settings.get("contact");
 
       Office.context.document.customXmlParts.getByIdAsync(pactsXmlId, asyncResult => {
         asyncResult.value.getXmlAsync(asyncResult => {
@@ -186,10 +186,36 @@ export class GroupedComponent extends React.Component<{}, IDetailsListGroupedExa
       await context.sync();
     });
   };
+
+  populateGridFromXmlOnAdd = async xmlPartId => {
+    return Word.run(async context => {
+      console.log("From pop grid on click ...", xmlPartId);
+      const pactsXmlId = Office.context.document.settings.get(xmlPartId);
+
+      Office.context.document.customXmlParts.getByIdAsync(pactsXmlId, asyncResult => {
+        asyncResult.value.getXmlAsync(asyncResult => {
+          console.log("Value Based on ID  ", asyncResult.value);
+          console.log("Office settings ", Office.context.document.settings);
+          const fetchXMLHelper = new FetchXMLHelper(asyncResult.value);
+          fetchXMLHelper.parseFetchXML();
+
+          //we will use this items variable in our initial state below
+          const items = fetchXMLHelper.getStrippedItems();
+          const groups = fetchXMLHelper.getStrippedGroups();
+          console.log("Items on Mount>>>>>>>> ", items);
+          console.log("Groups on Mount>>>>>>>>>>", groups);
+          this.setState({ items: items });
+          this.setState({ groups: groups });
+        });
+      });
+      console.log(">>>>>>>>>>>>> Jubby");
+      await context.sync();
+    });
+  };
+
   public componentDidMount() {
     this.runOnMount();
-
-    this.populateGridFromXmlPart();
+    this.populateGridFromXmlPartOnMount();
   }
 
   public componentWillUnmount() {
@@ -237,41 +263,88 @@ export class GroupedComponent extends React.Component<{}, IDetailsListGroupedExa
   };
 
   setGetXMLPart = () => {
-    console.log("Entered xml string ", this.state.value);
-    // console.log("onclick worked");
-    // const xmlString =
-    //   "<Reviewers xmlns='http://schemas.contoso.com/review/1.0'><Reviewer>Juan</Reviewer><Reviewer>Hong</Reviewer><Reviewer>Sally</Reviewer></Reviewers>";
-    // Office.context.document.customXmlParts.addAsync(xmlString, asyncResult => {
-    //   console.log(asyncResult.value.id);
+    //we probably need to validate the xml entered into the multiline textbox
+
+    let enteredXmlString = this.state.value;
+    console.log("Entered xml string ", enteredXmlString);
+
+    //Parse the table name out of the xml, this will be the Key or Id for the xml part saved in the doc
+    const fetchXMLHelperTextBox = new FetchXMLHelper(enteredXmlString);
+    fetchXMLHelperTextBox.parseFetchXML();
+    let strippedGroups = fetchXMLHelperTextBox.getStrippedGroups();
+    let xmlPartId = strippedGroups[0].name;
+    console.log("xml part id ", xmlPartId);
+
+    const pactsXmlId = Office.context.document.settings.get(xmlPartId);
+    console.log("Pacts xml id ", pactsXmlId); //if null
+    debugger;
+    if (pactsXmlId === null) {
+      //create new xml part with xmlpartid as key
+      const xmlString = enteredXmlString; //this.state.value;
+      console.log(xmlString);
+      console.log("Null This Time");
+      //Office.context.document.settings.
+      Office.context.document.customXmlParts.addAsync(xmlString, asyncResult => {
+        Office.context.document.settings.set(xmlPartId, asyncResult.value.id);
+        console.log("Async id", asyncResult.value.id);
+        Office.context.document.settings.saveAsync();
+      });
+    } else {
+      //delete the existing xml part with the same key name
+
+      const pactsXmlId = Office.context.document.settings.get(xmlPartId);
+      console.log(pactsXmlId);
+      Office.context.document.customXmlParts.getByIdAsync(pactsXmlId, function(result) {
+        var xmlPart = result.value;
+        console.log("XML Part", xmlPart);
+        xmlPart.deleteAsync(function(eventArgs) {
+          //write("The XML Part has been deleted.");
+          console.log("xml part deleted");
+        });
+      });
+      //create new xml part with table name as key
+      const xmlString = enteredXmlString; //this.state.value;
+      console.log(xmlString);
+      //Office.context.document.settings.
+      Office.context.document.customXmlParts.addAsync(xmlString, asyncResult => {
+        Office.context.document.settings.set(xmlPartId, asyncResult.value.id);
+        console.log("Async id", asyncResult.value.id);
+        Office.context.document.settings.saveAsync();
+      });
+    }
+    // Office.context.document.customXmlParts.getByIdAsync(pactsXmlId, asyncResult => {
     //   asyncResult.value.getXmlAsync(asyncResult => {
-    //     console.log(asyncResult.value);
+    //     console.log("Value Based on ID Check This Now ", asyncResult.value);
+    //     console.log("Office settings ", Office.context.document.settings);
+    //   });
+    // });
+
+    this.populateGridFromXmlOnAdd(xmlPartId);
+
+    //Deletes xml part, good version
+
+    // const pactsXmlId = Office.context.document.settings.get("Rogue");
+    // console.log(pactsXmlId);
+    // Office.context.document.customXmlParts.getByIdAsync(pactsXmlId, function(result) {
+    //   var xmlPart = result.value;
+    //   xmlPart.deleteAsync(function(eventArgs) {
+    //     //write("The XML Part has been deleted.");
+    //     console.log("xml part deleted");
     //   });
     // });
 
     //Creates an xmlPart and associates id with it
+
     // const xmlString = xmlDoc2; //this.state.value;
+    // console.log(xmlString);
     // //Office.context.document.settings.
     // Office.context.document.customXmlParts.addAsync(xmlString, asyncResult => {
-    //   Office.context.document.settings.set("Rogue", asyncResult.value.id);
+    //   Office.context.document.settings.set("Dungeon", asyncResult.value.id);
     //   console.log("Async id", asyncResult.value.id);
     //   Office.context.document.settings.saveAsync();
     // });
 
-    //Deletes an xml part easy version, this isn't working
-    // Office.context.document.settings.remove("TestSecond");
-    // Office.context.document.settings.saveAsync();
-
-    //Deletes xml part, good version, checking to see if it works yet
-
-    const pactsXmlId = Office.context.document.settings.get("Rogue");
-    console.log(pactsXmlId);
-    Office.context.document.customXmlParts.getByIdAsync(pactsXmlId, function(result) {
-      var xmlPart = result.value;
-      xmlPart.deleteAsync(function(eventArgs) {
-        //write("The XML Part has been deleted.");
-        console.log("xml part deleted");
-      });
-    });
+    this.setState({ value: "" });
 
     // const pactsXmlId = Office.context.document.settings.get("PactsXml");
     // Office.context.document.customXmlParts.getByIdAsync(reviewersXmlId, asyncResult => {
@@ -339,7 +412,7 @@ export class GroupedComponent extends React.Component<{}, IDetailsListGroupedExa
 
         <MultiLineTextBox />
         {/* Might need to use the value field to clear Textfield, look at react form docs https://reactjs.org/docs/forms.html */}
-        <TextField label="Enter FetchXML" multiline rows={3} onChange={this.handleChange} />
+        <TextField label="Enter FetchXML" multiline rows={3} value={this.state.value} onChange={this.handleChange} />
         <Button
           className="ms-welcome__action"
           buttonType={ButtonType.hero}
