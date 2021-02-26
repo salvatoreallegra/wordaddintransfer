@@ -127,6 +127,7 @@ export class GroupedComponent extends React.Component<{}, IDetailsListGroupedExa
     ];
 
     this.handleChange = this.handleChange.bind(this);
+    this.populateGridFromXmlOnAdd = this.populateGridFromXmlOnAdd.bind(this);
   }
 
   //Get the names or something so I can operate on content controls
@@ -189,12 +190,12 @@ export class GroupedComponent extends React.Component<{}, IDetailsListGroupedExa
 
   populateGridFromXmlOnAdd = async xmlPartId => {
     return Word.run(async context => {
+      debugger;
       console.log("From pop grid on click ...", xmlPartId);
       // setTimeout(function() {
       //   console.log("Hello");
       // }, 7000);
       const pactsXmlId = Office.context.document.settings.get(xmlPartId);
-      debugger;
       Office.context.document.customXmlParts.getByIdAsync(pactsXmlId, asyncResult => {
         asyncResult.value.getXmlAsync(asyncResult => {
           /****This is the problem right here, asyncResult.value is undefined */
@@ -266,9 +267,8 @@ export class GroupedComponent extends React.Component<{}, IDetailsListGroupedExa
     });
   };
 
-  setGetXMLPart = () => {
+  setGetXMLPart = functionAsParam => {
     //we probably need to validate the xml entered into the multiline textbox
-
     let enteredXmlString = this.state.value;
     console.log("Entered xml string ", enteredXmlString);
 
@@ -291,7 +291,13 @@ export class GroupedComponent extends React.Component<{}, IDetailsListGroupedExa
         console.log("New XML Part Created");
         Office.context.document.settings.set(xmlPartId, asyncResult.value.id);
         console.log("Async id", asyncResult.value.id);
-        Office.context.document.settings.saveAsync();
+        Office.context.document.settings.saveAsync(function() {
+          if (asyncResult.status == Office.AsyncResultStatus.Failed) {
+            console.log("Settings save failed. Error: " + asyncResult.error.message);
+          } else {
+            console.log("Settings saved.");
+          }
+        });
       });
     } else {
       //delete the existing xml part with the same key name
@@ -303,6 +309,7 @@ export class GroupedComponent extends React.Component<{}, IDetailsListGroupedExa
 
         var xmlPart = result.value;
         console.log("XML Part", xmlPart);
+
         xmlPart.deleteAsync(function(eventArgs) {
           //write("The XML Part has been deleted.");
           console.log("xml part deleted");
@@ -312,14 +319,21 @@ export class GroupedComponent extends React.Component<{}, IDetailsListGroupedExa
           Office.context.document.customXmlParts.addAsync(xmlString, asyncResult => {
             Office.context.document.settings.set(xmlPartId, asyncResult.value.id);
             console.log("Async id When ", asyncResult.value.id);
-            // Office.context.document.settings.saveAsync().onSuccess(() => {
-            //   this.populateGridFromXmlOnAdd(xmlPartId);
-            // });
-            Office.context.document.settings.saveAsync();
+
+            Office.context.document.settings.saveAsync(function(asyncResult) {
+              if (asyncResult.status == Office.AsyncResultStatus.Failed) {
+                console.log("Settings save failed. Error: " + asyncResult.error.message);
+              } else {
+                console.log("Saved new XML Part");
+                functionAsParam(xmlPartId);
+                //this.populateGridFromXmlOnAdd(xmlPartId);
+              }
+            });
           });
         });
       });
     }
+    //this.populateGridFromXmlOnAdd(xmlPartId);
     // Office.context.document.customXmlParts.getByIdAsync(pactsXmlId, asyncResult => {
     //   asyncResult.value.getXmlAsync(asyncResult => {
     //     console.log("Value Based on ID Check This Now ", asyncResult.value);
@@ -423,7 +437,7 @@ export class GroupedComponent extends React.Component<{}, IDetailsListGroupedExa
           className="ms-welcome__action"
           buttonType={ButtonType.hero}
           iconProps={{ iconName: "ChevronRight" }}
-          onClick={this.setGetXMLPart}
+          onClick={() => this.setGetXMLPart(this.populateGridFromXmlOnAdd)}
         >
           Add
         </Button>
