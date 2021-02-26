@@ -35,12 +35,12 @@ const addItemButtonStyles: Partial<IButtonStyles> = { root: { margin: margin } }
 export interface IDetailsListGroupedExampleItem {
   key: string;
   name: string;
-  color: string;
+  // color: string;
 }
 
 export interface IDetailsListGroupedExampleState {
   items: IDetailsListGroupedExampleItem[];
-  groups: IGroup[];
+  groups: any; //IGroup[];
   showItemIndexInView: boolean;
   isCompactMode: boolean;
   textBoxText: string;
@@ -48,34 +48,6 @@ export interface IDetailsListGroupedExampleState {
 }
 
 const _blueGroupIndex = 2;
-
-// let xmlDoc =
-//   "<AddIn xmlns='http://schemas.pacts.com/datas/1.0'>" +
-//   '<fetch version="1.0" output-format="xml-platform" mapping="logical" distinct="false">' +
-//   '<entity name="incident">' +
-//   '<attribute name="title" />' +
-//   '<attribute name="ticketnumber" />' +
-//   '<attribute name="createdon" />' +
-//   '<attribute name="incidentid" />' +
-//   '<attribute name="caseorigincode" />' +
-//   '<order attribute="title" descending="false" />' +
-//   '<filter type="and">' +
-//   '<condition attribute="statecode" operator="eq" value="0" />' +
-//   "</filter>" +
-//   "</entity>" +
-//   '<entity name="case">' +
-//   '<attribute name="caseId" />' +
-//   '<attribute name="description" />' +
-//   '<attribute name="createdon" />' +
-//   '<attribute name="incidentid" />' +
-//   '<attribute name="caseorigincode" />' +
-//   '<order attribute="title" descending="false" />' +
-//   '<filter type="and">' +
-//   '<condition attribute="statecode" operator="eq" value="0" />' +
-//   "</filter>" +
-//   "</entity>" +
-//   "</fetch>" +
-//   "</AddIn>";
 
 //<pacts xmlns='http://pacts/entity name here'>
 let xmlDoc2 =
@@ -113,8 +85,8 @@ export class GroupedComponent extends React.Component<{}, IDetailsListGroupedExa
     super(props);
 
     this.state = {
-      items: [],
-      groups: [],
+      items: [], //this will be an array of object literals
+      groups: [], //this will be an array of object literals
       showItemIndexInView: false,
       isCompactMode: false,
       textBoxText: "",
@@ -179,38 +151,56 @@ export class GroupedComponent extends React.Component<{}, IDetailsListGroupedExa
           const groups = fetchXMLHelper.getStrippedGroups();
           console.log("Items on Mount>>>>>>>> ", items);
           console.log("Groups on Mount>>>>>>>>>>", groups);
+          //this.setState({ items: items });
+          //this.setState({ groups: groups });
           this.setState({ items: items });
           this.setState({ groups: groups });
+          this.showXMLPartsInNamespace();
         });
       });
-      console.log(">>>>>>>>>>>>> Jubby");
       await context.sync();
     });
   };
 
+  showXMLPartsInNamespace() {
+    Office.context.document.customXmlParts.getByNamespaceAsync("http://schemas.pacts.com/case", function(eventArgs) {
+      console.log("Found " + eventArgs.value.length + " parts with this namespace");
+      console.log("Event args", eventArgs);
+      console.log("Event Args value ", eventArgs.value);
+    });
+  }
+
   populateGridFromXmlOnAdd = async xmlPartId => {
     return Word.run(async context => {
-      debugger;
       console.log("From pop grid on click ...", xmlPartId);
-      // setTimeout(function() {
-      //   console.log("Hello");
-      // }, 7000);
+
       const pactsXmlId = Office.context.document.settings.get(xmlPartId);
       Office.context.document.customXmlParts.getByIdAsync(pactsXmlId, asyncResult => {
         asyncResult.value.getXmlAsync(asyncResult => {
-          /****This is the problem right here, asyncResult.value is undefined */
-          console.log("Value Based on ID  ", asyncResult.value);
-          console.log("Office settings ", Office.context.document.settings);
           const fetchXMLHelper = new FetchXMLHelper(asyncResult.value);
           fetchXMLHelper.parseFetchXML();
 
           //we will use this items variable in our initial state below
           const items = fetchXMLHelper.getStrippedItems();
           const groups = fetchXMLHelper.getStrippedGroups();
-          console.log("Items on Mount>>>>>>>> ", items);
-          console.log("Groups on Mount>>>>>>>>>>", groups);
-          this.setState({ items: items });
-          this.setState({ groups: groups });
+          console.log("Items on Add Click >>>>>>>> ", items);
+          console.log("Groups on Add Click >>>>>>>>>>", groups);
+          // let pushedItemsArr = this.state.items.push(...items);
+          // // let pushedGroups = this.state.groups.push(...groups);
+          // console.log(" pushed items arr ", pushedItemsArr);
+          // let concatItems = this.state.items.concat(items);
+          // let concatGroups = this.state.groups.concat(groups);
+          // console.log("Concat Items", concatItems);
+          // console.log("Concat Groups", concatGroups);
+          console.log("State groups ", this.state.groups);
+          console.log("State items ", this.state.items);
+          this.setState({ items: [...this.state.items, ...items] });
+          this.setState({ groups: [...this.state.groups, ...groups] });
+          console.log("Current state of items ", this.state.items);
+          // this.setState({ items: concatItems });
+          // this.setState({ groups: concatGroups });
+          // this.setState({ items: items });
+          // this.setState({ groups: groups });
         });
       });
       console.log(">>>>>>>>>>>>> Jubby");
@@ -296,6 +286,7 @@ export class GroupedComponent extends React.Component<{}, IDetailsListGroupedExa
             console.log("Settings save failed. Error: " + asyncResult.error.message);
           } else {
             console.log("Settings saved.");
+            functionAsParam(xmlPartId);
           }
         });
       });

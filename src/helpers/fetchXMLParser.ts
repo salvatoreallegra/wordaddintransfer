@@ -64,7 +64,7 @@ export class FetchXMLHelper {
       }
       // this.strippedItems.push(nodeName);
     }
-    console.log(this.strippedGroups);
+    console.log("Inside fetchsml Module ", this.strippedGroups);
     console.log("Inside fetchxml module....", this.strippedItems);
   }
   getStrippedItems() {
