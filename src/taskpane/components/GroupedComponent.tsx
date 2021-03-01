@@ -85,8 +85,39 @@ export class GroupedComponent extends React.Component<{}, IDetailsListGroupedExa
     super(props);
 
     this.state = {
-      items: [], //this will be an array of object literals
-      groups: [], //this will be an array of object literals
+      items: [],
+      groups: [],
+      //set items and groups back to a damn empty array []
+      // items: [
+      //   {
+      //     key: "b",
+      //     name: "gauntlet"
+      //   },
+      //   {
+      //     key: "c",
+      //     name: "Blitz"
+      //   },
+      //   {
+      //     key: "d",
+      //     name: "Chrenshaw"
+      //   }
+      // ], //this will be an array of object literals
+      // groups: [
+      //   {
+      //     key: "1",
+      //     name: "Incidental",
+      //     startIndex: 0,
+      //     count: 1,
+      //     level: 0
+      //   },
+      //   {
+      //     key: "2",
+      //     name: "Criminal",
+      //     startIndex: 1,
+      //     count: 5,
+      //     level: 0
+      //   }
+      // ], //this will be an array of object literals
       showItemIndexInView: false,
       isCompactMode: false,
       textBoxText: "",
@@ -149,6 +180,9 @@ export class GroupedComponent extends React.Component<{}, IDetailsListGroupedExa
           //we will use this items variable in our initial state below
           const items = fetchXMLHelper.getStrippedItems();
           const groups = fetchXMLHelper.getStrippedGroups();
+
+          FetchXMLHelper.xmlPartIds.push(groups);
+
           console.log("Items on Mount>>>>>>>> ", items);
           console.log("Groups on Mount>>>>>>>>>>", groups);
           //this.setState({ items: items });
@@ -183,6 +217,9 @@ export class GroupedComponent extends React.Component<{}, IDetailsListGroupedExa
           //we will use this items variable in our initial state below
           const items = fetchXMLHelper.getStrippedItems();
           const groups = fetchXMLHelper.getStrippedGroups();
+
+          FetchXMLHelper.xmlPartIds.push(groups);
+
           console.log("Items on Add Click >>>>>>>> ", items);
           console.log("Groups on Add Click >>>>>>>>>>", groups);
           // let pushedItemsArr = this.state.items.push(...items);
@@ -197,6 +234,7 @@ export class GroupedComponent extends React.Component<{}, IDetailsListGroupedExa
           this.setState({ items: [...this.state.items, ...items] });
           this.setState({ groups: [...this.state.groups, ...groups] });
           console.log("Current state of items ", this.state.items);
+          console.log("Current state of groups ", this.state.groups);
           // this.setState({ items: concatItems });
           // this.setState({ groups: concatGroups });
           // this.setState({ items: items });
