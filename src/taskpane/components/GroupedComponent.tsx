@@ -21,7 +21,7 @@ import {
   SelectionMode
 } from "office-ui-fabric-react";
 
-//const margin = "0 20px 20px 0";
+// const margin = "0 20px 20px 0";
 // const controlWrapperClass = mergeStyles({
 //   display: "flex",
 //   flexWrap: "wrap"
@@ -31,7 +31,7 @@ import {
 //   label: { marginLeft: 10 }
 // };
 //const addItemButtonStyles: Partial<IButtonStyles> = { root: { margin: margin } };
-export { tableFields };
+//John: export { tableFields };
 
 export interface IDetailsListGroupedExampleItem {
   key: string;
@@ -39,7 +39,16 @@ export interface IDetailsListGroupedExampleItem {
   // color: string;
 }
 
+export interface IFieldTemplate {
+  groups: any;
+  items: IDetailsListGroupedExampleItem[];
+}
+// tableFields.push({
+//               name: groups,
+//               fields: items
+//             });
 export interface IDetailsListGroupedExampleState {
+  tableFields: IFieldTemplate;
   items: IDetailsListGroupedExampleItem[];
   previousItems: IDetailsListGroupedExampleItem[];
   groups: any; //IGroup[];
@@ -51,27 +60,9 @@ export interface IDetailsListGroupedExampleState {
 
 //const _blueGroupIndex = 2;
 
-//<pacts xmlns='http://pacts/entity name here'>
-// let xmlDoc2 =
-//   "<AddIn xmlns='http://schemas.pacts.com/'>" +
-//   '<fetch version="1.0" output-format="xml-platform" mapping="logical" distinct="false">' +
-//   '<entity name="case">' +
-//   '<attribute name="caseId" />' +
-//   '<attribute name="iolation" />' +
-//   '<attribute name="createdon" />' +
-//   '<attribute name="whatever" />' +
-//   '<attribute name="caseworkername" />' +
-//   '<order attribute="title" descending="false" />' +
-//   '<filter type="and">' +
-//   '<condition attribute="statecode" operator="eq" value="0" />' +
-//   "</filter>" +
-//   "</entity>" +
-//   "</fetch>" +
-//   "</AddIn>";
-
 // let groupItemsMap = new Map();
 
-let tableFields = [];
+//let tableFields = [];
 
 export class GroupedComponent extends React.Component<{}, IDetailsListGroupedExampleState> {
   private _root = React.createRef<IDetailsList>();
@@ -81,6 +72,7 @@ export class GroupedComponent extends React.Component<{}, IDetailsListGroupedExa
     super(props);
 
     this.state = {
+      tableFields: null,
       items: [],
       previousItems: [],
       groups: [],
@@ -95,21 +87,8 @@ export class GroupedComponent extends React.Component<{}, IDetailsListGroupedExa
     ];
 
     this.handleChange = this.handleChange.bind(this);
-    this.populateGridFromXmlOnAdd = this.populateGridFromXmlOnAdd.bind(this);
+    //this.populateGridFromXmlOnAdd = this.populateGridFromXmlOnAdd.bind(this);
   }
-
-  //Next sprint fetch the xml from a tables called report datasets, will make api
-  //will grab everything in the reports table  it iwll retrieve in this format one entity per in table
-  // '<entity name="incident">' +
-  //   '<attribute name="title" />' +
-  //   '<attribute name="ticketnumber" />' +
-  //   '<attribute name="createdon" />' +
-  //   '<attribute name="incidentid" />' +
-  //   '<attribute name="caseorigincode" />'
-  //  after getting this will store each result as a xml part stored in the doc
-  //  this is what will be displayed in the grid
-  // when doc is reopened, all the xml parts will be displayed in the grid
-  // set the name of each xml part to the name of the enity in the fetchxml
 
   runOnMount = async () => {
     return Word.run(async context => {
@@ -131,42 +110,59 @@ export class GroupedComponent extends React.Component<{}, IDetailsListGroupedExa
     let component = this;
     return Word.run(async context => {
       //Get all the xml parts for the namespace in the doc, then populate grid
-      Office.context.document.customXmlParts.getByNamespaceAsync("http://schemas.pacts.com/case", function(eventArgs) {
+      Office.context.document.customXmlParts.getByNamespaceAsync("http://schemas.pacts.com/case", async function(
+        eventArgs
+      ) {
         console.log("Found " + eventArgs.value.length + " parts with this namespace");
         console.log("Event args", eventArgs);
         console.log("Event Args value ", eventArgs.value);
-        eventArgs.value.forEach(function(id) {
+
+        //eventArgs.value.forEach(function(contentXmlPart) {
+        for (let i = 0; i < eventArgs.value.length; i++) {
+          let contentXmlPart = eventArgs.value[i];
           const pactsXmlId = Office.context.document.settings.get("case");
           console.log("Checking id ", pactsXmlId);
-          console.log("Id of xml part ", id.id);
+          console.log("Id of xml part ", contentXmlPart.id);
           // const pactsXmlId = Office.context.document.settings.get("case");
 
-          Office.context.document.customXmlParts.getByIdAsync(id.id, asyncResult => {
-            asyncResult.value.getXmlAsync(asyncResult => {
-              console.log("Value Based on ID  ", asyncResult.value);
-              console.log("Office settings ", Office.context.document.settings);
-              const fetchXMLHelper = new FetchXMLHelper(asyncResult.value);
-              fetchXMLHelper.parseFetchXML();
+          //John: await Office.context.document.customXmlParts.getByIdAsync(id.id, asyncResult => {
+          await contentXmlPart.getXmlAsync(asyncResult => {
+            console.log("Value Based on ID  ", asyncResult.value);
+            console.log("Office settings ", Office.context.document.settings);
+            debugger;
+            const fetchXMLHelper = new FetchXMLHelper(asyncResult.value);
+            fetchXMLHelper.parseFetchXML(component.state.tableFields); //John
 
-              //we will use this items variable in our initial state below
-              const items = fetchXMLHelper.getStrippedItems();
-              const groups = fetchXMLHelper.getStrippedGroups();
+            //we will use this items variable in our initial state below
+            const items = fetchXMLHelper.getStrippedItems();
+            const groups = fetchXMLHelper.getStrippedGroups();
 
-              tableFields.push({
-                name: groups,
-                fields: items
-              });
-              console.log("Table Fields onMount ", tableFields);
-              console.log("Items on Mount>>>>>>>> ", items);
-              console.log("Groups on Mount>>>>>>>>>>", groups);
-
-              // component.setState({ items: items });
-              // component.setState({ groups: groups });
-              component.setState({ items: [...component.state.items, ...items] });
-              component.setState({ groups: [...component.state.groups, ...groups] });
+            component.setState({
+              //come back to properly changing state
+              tableFields: {
+                groups,
+                items
+              }
             });
+
+            //John :
+            // tableFields.push({
+            //   name: groups,
+            //   fields: items
+            // });
+
+            console.log("Table Fields onMount ", component.state.tableFields);
+            console.log("Items on Mount>>>>>>>> ", items);
+            console.log("Groups on Mount>>>>>>>>>>", groups);
+
+            // component.setState({ items: items });
+            // component.setState({ groups: groups });
+            component.setState({ items: [...component.state.items, ...items] });
+            component.setState({ groups: [...component.state.groups, ...groups] });
           });
-        });
+        }
+        //});
+        //});
       });
 
       // const pactsXmlId = Office.context.document.settings.get("case");
@@ -209,14 +205,17 @@ export class GroupedComponent extends React.Component<{}, IDetailsListGroupedExa
       Office.context.document.customXmlParts.getByIdAsync(pactsXmlId, asyncResult => {
         asyncResult.value.getXmlAsync(asyncResult => {
           const fetchXMLHelper = new FetchXMLHelper(asyncResult.value);
-          fetchXMLHelper.parseFetchXML();
+          fetchXMLHelper.parseFetchXML(this.state.tableFields);
 
           //we will use this items variable in our initial state below
           const items = fetchXMLHelper.getStrippedItems();
           const groups = fetchXMLHelper.getStrippedGroups();
-          tableFields.push({
-            name: groups,
-            fields: items
+          this.setState({
+            //come back to properly changing state
+            tableFields: {
+              groups,
+              items
+            }
           });
 
           if (FetchXMLHelper.xmlPartIds.includes(groups)) {
@@ -295,7 +294,7 @@ export class GroupedComponent extends React.Component<{}, IDetailsListGroupedExa
 
     //Parse the table name out of the xml, this will be the Key or Id for the xml part saved in the doc
     const fetchXMLHelperTextBox = new FetchXMLHelper(enteredXmlString);
-    fetchXMLHelperTextBox.parseFetchXML();
+    fetchXMLHelperTextBox.parseFetchXML(this.state.tableFields);
     let strippedGroups = fetchXMLHelperTextBox.getStrippedGroups();
     let xmlPartId = strippedGroups[0].name;
     console.log("xml part id ", xmlPartId);

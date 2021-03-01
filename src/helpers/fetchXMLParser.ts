@@ -1,5 +1,5 @@
 import { uuid } from "uuidv4";
-import {tableFields} from "../taskpane/components/GroupedComponent"
+//John: import {tableFields} from "../taskpane/components/GroupedComponent"
 
 export class FetchXMLHelper {
   fetchXML;
@@ -25,22 +25,17 @@ export class FetchXMLHelper {
   constructor(fetchXML) {
     this.fetchXML = fetchXML;
    // this.endIndex = endIndex;
-    this.thisTableFields = tableFields;
+    //John: this.thisTableFields = tableFields;
    console.log("*************** table fields",this.thisTableFields);
    
-  }
+  } 
 
-  
-  
-
-  parseFetchXML() {
+  parseFetchXML(tableFields) {
     var node = new DOMParser().parseFromString(this.fetchXML, "text/xml").documentElement;
 
     var nodes = node.querySelectorAll("*");
     var nodeName = null;
-    let nodeValue = null;
-    
-    
+    let nodeValue = null;    
 
     let itemCounter = 0;
     
@@ -58,6 +53,7 @@ export class FetchXMLHelper {
         };
         //
         //this.strippedGroups.push(groupsObj);
+       
       }
       if (nodeName === "attribute") {
         let stateObj = {
@@ -73,14 +69,22 @@ export class FetchXMLHelper {
     //this.groupsObj["startIndex"] = endIndex;
     this.strippedGroups.push(this.groupsObj);
     console.log("Item Counter ", itemCounter )
-    for(let i = 0; i < this.thisTableFields.length; i++){
-      console.log("Loop....",this.thisTableFields[i]);
+    //John: let tablesFields = this.getTablesFields();
+    debugger;
+    for(let i = 0; i < tableFields && tableFields.length; i++){ //John: 
+
+      console.log("Loop....",tableFields[i]);
     }
     
     console.log("Inside fetchxml Module ", this.strippedGroups);
     console.log("Inside fetchxml module....", this.strippedItems);
+
+    return tableFields;
   }
-  
+  getTablesFields(){
+    console.log("Inside PrintTableFields Function ", this.thisTableFields);
+    return this.thisTableFields;
+  }
   getStrippedItems() {
     return this.strippedItems;
   }
