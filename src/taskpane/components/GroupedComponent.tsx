@@ -40,6 +40,7 @@ export interface IDetailsListGroupedExampleItem {
 
 export interface IDetailsListGroupedExampleState {
   items: IDetailsListGroupedExampleItem[];
+  previousItems: IDetailsListGroupedExampleItem[];
   groups: any; //IGroup[];
   showItemIndexInView: boolean;
   isCompactMode: boolean;
@@ -67,15 +68,7 @@ let xmlDoc2 =
   "</fetch>" +
   "</AddIn>";
 
-// //must pass fetchxml string when creating object
-// const fetchXMLHelper = new FetchXMLHelper(xmlDoc);
-// fetchXMLHelper.parseFetchXML();
-// console.log("Fetchxmlhelper   ", fetchXMLHelper);
-
-// //we will use this items variable in our initial state below
-// const items = fetchXMLHelper.getStrippedItems();
-// const groups = fetchXMLHelper.getStrippedGroups();
-// console.log("Items>>>>>>>> ", items);
+let groupItemsMap = new Map();
 
 export class GroupedComponent extends React.Component<{}, IDetailsListGroupedExampleState> {
   private _root = React.createRef<IDetailsList>();
@@ -86,38 +79,8 @@ export class GroupedComponent extends React.Component<{}, IDetailsListGroupedExa
 
     this.state = {
       items: [],
+      previousItems: [],
       groups: [],
-      //set items and groups back to a damn empty array []
-      // items: [
-      //   {
-      //     key: "b",
-      //     name: "gauntlet"
-      //   },
-      //   {
-      //     key: "c",
-      //     name: "Blitz"
-      //   },
-      //   {
-      //     key: "d",
-      //     name: "Chrenshaw"
-      //   }
-      // ], //this will be an array of object literals
-      // groups: [
-      //   {
-      //     key: "1",
-      //     name: "Incidental",
-      //     startIndex: 0,
-      //     count: 1,
-      //     level: 0
-      //   },
-      //   {
-      //     key: "2",
-      //     name: "Criminal",
-      //     startIndex: 1,
-      //     count: 5,
-      //     level: 0
-      //   }
-      // ], //this will be an array of object literals
       showItemIndexInView: false,
       isCompactMode: false,
       textBoxText: "",
@@ -126,16 +89,11 @@ export class GroupedComponent extends React.Component<{}, IDetailsListGroupedExa
 
     this._columns = [
       { key: "name", name: "Tables and Fields", fieldName: "name", minWidth: 100, maxWidth: 200, isResizable: true }
-      //  { key: "color", name: "Color", fieldName: "color", minWidth: 100, maxWidth: 200 }
     ];
 
     this.handleChange = this.handleChange.bind(this);
     this.populateGridFromXmlOnAdd = this.populateGridFromXmlOnAdd.bind(this);
   }
-
-  //Get the names or something so I can operate on content controls
-
-  //Fetch xml is embedded in the document somewhere, grab it so I can make an axios request to CDS
 
   //Next sprint fetch the xml from a tables called report datasets, will make api
   //will grab everything in the reports table  it iwll retrieve in this format one entity per in table
@@ -167,42 +125,78 @@ export class GroupedComponent extends React.Component<{}, IDetailsListGroupedExa
   };
 
   populateGridFromXmlPartOnMount = async () => {
+    let component = this;
     return Word.run(async context => {
-      const pactsXmlId = Office.context.document.settings.get("case");
+      //Get all the xml parts for the namespace in the doc, then populate grid
+      Office.context.document.customXmlParts.getByNamespaceAsync("http://schemas.pacts.com/case", function(eventArgs) {
+        console.log("Found " + eventArgs.value.length + " parts with this namespace");
+        console.log("Event args", eventArgs);
+        console.log("Event Args value ", eventArgs.value);
+        eventArgs.value.forEach(function(id) {
+          const pactsXmlId = Office.context.document.settings.get("case");
+          console.log("Checking id ", pactsXmlId);
+          console.log("Id of xml part ", id.id);
+          // const pactsXmlId = Office.context.document.settings.get("case");
 
-      Office.context.document.customXmlParts.getByIdAsync(pactsXmlId, asyncResult => {
-        asyncResult.value.getXmlAsync(asyncResult => {
-          console.log("Value Based on ID  ", asyncResult.value);
-          console.log("Office settings ", Office.context.document.settings);
-          const fetchXMLHelper = new FetchXMLHelper(asyncResult.value);
-          fetchXMLHelper.parseFetchXML();
+          Office.context.document.customXmlParts.getByIdAsync(id.id, asyncResult => {
+            asyncResult.value.getXmlAsync(asyncResult => {
+              console.log("Value Based on ID  ", asyncResult.value);
+              console.log("Office settings ", Office.context.document.settings);
+              const fetchXMLHelper = new FetchXMLHelper(asyncResult.value);
+              fetchXMLHelper.parseFetchXML();
 
-          //we will use this items variable in our initial state below
-          const items = fetchXMLHelper.getStrippedItems();
-          const groups = fetchXMLHelper.getStrippedGroups();
+              //we will use this items variable in our initial state below
+              const items = fetchXMLHelper.getStrippedItems();
+              const groups = fetchXMLHelper.getStrippedGroups();
 
-          FetchXMLHelper.xmlPartIds.push(groups);
+              // FetchXMLHelper.xmlPartIds.push(groups);
+              // groupItemsMap.set(groups[0].name, items);
+              // console.log("Map ", groupItemsMap);
+              // console.log("One item per group ", groupItemsMap.get("case"));
 
-          console.log("Items on Mount>>>>>>>> ", items);
-          console.log("Groups on Mount>>>>>>>>>>", groups);
-          //this.setState({ items: items });
-          //this.setState({ groups: groups });
-          this.setState({ items: items });
-          this.setState({ groups: groups });
-          this.showXMLPartsInNamespace();
+              console.log("Items on Mount>>>>>>>> ", items);
+              console.log("Groups on Mount>>>>>>>>>>", groups);
+
+              // component.setState({ items: items });
+              // component.setState({ groups: groups });
+              component.setState({ items: [...component.state.items, ...items] });
+              component.setState({ groups: [...component.state.groups, ...groups] });
+            });
+          });
         });
       });
+
+      // const pactsXmlId = Office.context.document.settings.get("case");
+
+      // Office.context.document.customXmlParts.getByIdAsync(pactsXmlId, asyncResult => {
+      //   asyncResult.value.getXmlAsync(asyncResult => {
+      //     console.log("Value Based on ID  ", asyncResult.value);
+      //     console.log("Office settings ", Office.context.document.settings);
+      //     const fetchXMLHelper = new FetchXMLHelper(asyncResult.value);
+      //     fetchXMLHelper.parseFetchXML();
+
+      //     //we will use this items variable in our initial state below
+      //     const items = fetchXMLHelper.getStrippedItems();
+      //     const groups = fetchXMLHelper.getStrippedGroups();
+
+      //     FetchXMLHelper.xmlPartIds.push(groups);
+      //     groupItemsMap.set(groups[0].name, items);
+      //     console.log("Map ", groupItemsMap);
+      //     console.log("One item per group ", groupItemsMap.get("case"));
+
+      //     console.log("Items on Mount>>>>>>>> ", items);
+      //     console.log("Groups on Mount>>>>>>>>>>", groups);
+
+      //     this.setState({ items: items });
+      //     this.setState({ groups: groups });
+      //     this.showXMLPartsInNamespace();
+      //   });
+      // });
       await context.sync();
     });
   };
 
-  showXMLPartsInNamespace() {
-    Office.context.document.customXmlParts.getByNamespaceAsync("http://schemas.pacts.com/case", function(eventArgs) {
-      console.log("Found " + eventArgs.value.length + " parts with this namespace");
-      console.log("Event args", eventArgs);
-      console.log("Event Args value ", eventArgs.value);
-    });
-  }
+  getAllXmlParts() {}
 
   populateGridFromXmlOnAdd = async xmlPartId => {
     return Word.run(async context => {
@@ -218,30 +212,22 @@ export class GroupedComponent extends React.Component<{}, IDetailsListGroupedExa
           const items = fetchXMLHelper.getStrippedItems();
           const groups = fetchXMLHelper.getStrippedGroups();
 
-          FetchXMLHelper.xmlPartIds.push(groups);
+          if (FetchXMLHelper.xmlPartIds.includes(groups)) {
+          } else {
+            FetchXMLHelper.xmlPartIds.push(groups);
+          }
 
           console.log("Items on Add Click >>>>>>>> ", items);
           console.log("Groups on Add Click >>>>>>>>>>", groups);
-          // let pushedItemsArr = this.state.items.push(...items);
-          // // let pushedGroups = this.state.groups.push(...groups);
-          // console.log(" pushed items arr ", pushedItemsArr);
-          // let concatItems = this.state.items.concat(items);
-          // let concatGroups = this.state.groups.concat(groups);
-          // console.log("Concat Items", concatItems);
-          // console.log("Concat Groups", concatGroups);
+
           console.log("State groups ", this.state.groups);
           console.log("State items ", this.state.items);
           this.setState({ items: [...this.state.items, ...items] });
           this.setState({ groups: [...this.state.groups, ...groups] });
           console.log("Current state of items ", this.state.items);
           console.log("Current state of groups ", this.state.groups);
-          // this.setState({ items: concatItems });
-          // this.setState({ groups: concatGroups });
-          // this.setState({ items: items });
-          // this.setState({ groups: groups });
         });
       });
-      console.log(">>>>>>>>>>>>> Jubby");
       await context.sync();
     });
   };

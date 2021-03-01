@@ -5,8 +5,18 @@
 
 /* global global, Office, self, window */
 
-Office.onReady(() => {
+Office.onReady((info) => {
   // If needed, Office.js is ready to be called
+debugger;
+  if (info.host === Office.HostType.Word) {
+    // Do Excel-specific initialization (for example, make add-in task pane's
+    // appearance compatible with Excel "green").
+    console.log("Office is Ready");
+  }
+  if (info.platform === Office.PlatformType.OfficeOnline) {
+    // Make minor layout changes in the task pane.
+    console.log(">>>>>>>> office is ready");
+}
 });
 
 /**
