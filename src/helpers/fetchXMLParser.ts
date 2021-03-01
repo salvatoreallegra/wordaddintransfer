@@ -1,7 +1,9 @@
 import { uuid } from "uuidv4";
+import {tableFields} from "../taskpane/components/GroupedComponent"
 
 export class FetchXMLHelper {
   fetchXML;
+  thisTableFields = [];
   strippedItems = [];
   strippedGroups = [];
   // groupsObj = {
@@ -16,11 +18,20 @@ export class FetchXMLHelper {
     level: 0
   };
 
+  //endIndex;
+
   static xmlPartIds = [];
 
   constructor(fetchXML) {
     this.fetchXML = fetchXML;
+   // this.endIndex = endIndex;
+    this.thisTableFields = tableFields;
+   console.log("*************** table fields",this.thisTableFields);
+   
   }
+
+  
+  
 
   parseFetchXML() {
     var node = new DOMParser().parseFromString(this.fetchXML, "text/xml").documentElement;
@@ -29,18 +40,13 @@ export class FetchXMLHelper {
     var nodeName = null;
     let nodeValue = null;
     
-    //get the number of items under a group
-
-    //get rid of the for loop and hardcode the object
-    //need to use attribute as counter
-    //for (let i = 0; i < nodes.length; i++) {}
+    
 
     let itemCounter = 0;
-    for (var i = 0; i < nodes.length; i++) {
-
-      
+    
+    for (var i = 0; i < nodes.length; i++) {      
      
-      nodeName = nodes[i].nodeName; //get text of the node
+      nodeName = nodes[i].nodeName; //get text value or the name of the node
       nodeValue = nodes[i].getAttribute("name");
       if (nodeName === "entity") {
          this.groupsObj = {
@@ -59,19 +65,29 @@ export class FetchXMLHelper {
           name: nodeValue
         };
         itemCounter++;
+        //endIndex++;
         this.strippedItems.push(stateObj);
       }
     }
     this.groupsObj["count"] = itemCounter;
+    //this.groupsObj["startIndex"] = endIndex;
     this.strippedGroups.push(this.groupsObj);
     console.log("Item Counter ", itemCounter )
+    for(let i = 0; i < this.thisTableFields.length; i++){
+      console.log("Loop....",this.thisTableFields[i]);
+    }
+    
     console.log("Inside fetchxml Module ", this.strippedGroups);
     console.log("Inside fetchxml module....", this.strippedItems);
   }
+  
   getStrippedItems() {
     return this.strippedItems;
   }
   getStrippedGroups() {
     return this.strippedGroups;
   }
+  // getEndIndex(){
+  //   return this.endIndex;
+  // }
 }

@@ -1,36 +1,37 @@
 import * as React from "react";
-import axios from "axios";
+//import axios from "axios";
 import { TextField } from "office-ui-fabric-react/lib/TextField";
 
 import { Button, ButtonType } from "office-ui-fabric-react";
 import { FetchXMLHelper } from "../../helpers/fetchXMLParser";
-import { MultiLineTextBox } from "./MultiLineTextBox";
+//import { MultiLineTextBox } from "./MultiLineTextBox";
 import {
-  DefaultButton,
+  //DefaultButton,
   DetailsHeader,
   DetailsList,
   IColumn,
   IDetailsHeaderProps,
   IDetailsList,
-  IGroup,
+  // IGroup,
   IRenderFunction,
-  IToggleStyles,
-  mergeStyles,
-  Toggle,
-  IButtonStyles,
+  // IToggleStyles,
+  // mergeStyles,
+  // Toggle,
+  // IButtonStyles,
   SelectionMode
 } from "office-ui-fabric-react";
 
-const margin = "0 20px 20px 0";
-const controlWrapperClass = mergeStyles({
-  display: "flex",
-  flexWrap: "wrap"
-});
-const toggleStyles: Partial<IToggleStyles> = {
-  root: { margin: margin },
-  label: { marginLeft: 10 }
-};
-const addItemButtonStyles: Partial<IButtonStyles> = { root: { margin: margin } };
+//const margin = "0 20px 20px 0";
+// const controlWrapperClass = mergeStyles({
+//   display: "flex",
+//   flexWrap: "wrap"
+// });
+// const toggleStyles: Partial<IToggleStyles> = {
+//   root: { margin: margin },
+//   label: { marginLeft: 10 }
+// };
+//const addItemButtonStyles: Partial<IButtonStyles> = { root: { margin: margin } };
+export { tableFields };
 
 export interface IDetailsListGroupedExampleItem {
   key: string;
@@ -48,27 +49,29 @@ export interface IDetailsListGroupedExampleState {
   value: string;
 }
 
-const _blueGroupIndex = 2;
+//const _blueGroupIndex = 2;
 
 //<pacts xmlns='http://pacts/entity name here'>
-let xmlDoc2 =
-  "<AddIn xmlns='http://schemas.pacts.com/'>" +
-  '<fetch version="1.0" output-format="xml-platform" mapping="logical" distinct="false">' +
-  '<entity name="case">' +
-  '<attribute name="caseId" />' +
-  '<attribute name="iolation" />' +
-  '<attribute name="createdon" />' +
-  '<attribute name="whatever" />' +
-  '<attribute name="caseworkername" />' +
-  '<order attribute="title" descending="false" />' +
-  '<filter type="and">' +
-  '<condition attribute="statecode" operator="eq" value="0" />' +
-  "</filter>" +
-  "</entity>" +
-  "</fetch>" +
-  "</AddIn>";
+// let xmlDoc2 =
+//   "<AddIn xmlns='http://schemas.pacts.com/'>" +
+//   '<fetch version="1.0" output-format="xml-platform" mapping="logical" distinct="false">' +
+//   '<entity name="case">' +
+//   '<attribute name="caseId" />' +
+//   '<attribute name="iolation" />' +
+//   '<attribute name="createdon" />' +
+//   '<attribute name="whatever" />' +
+//   '<attribute name="caseworkername" />' +
+//   '<order attribute="title" descending="false" />' +
+//   '<filter type="and">' +
+//   '<condition attribute="statecode" operator="eq" value="0" />' +
+//   "</filter>" +
+//   "</entity>" +
+//   "</fetch>" +
+//   "</AddIn>";
 
-let groupItemsMap = new Map();
+// let groupItemsMap = new Map();
+
+let tableFields = [];
 
 export class GroupedComponent extends React.Component<{}, IDetailsListGroupedExampleState> {
   private _root = React.createRef<IDetailsList>();
@@ -149,11 +152,11 @@ export class GroupedComponent extends React.Component<{}, IDetailsListGroupedExa
               const items = fetchXMLHelper.getStrippedItems();
               const groups = fetchXMLHelper.getStrippedGroups();
 
-              // FetchXMLHelper.xmlPartIds.push(groups);
-              // groupItemsMap.set(groups[0].name, items);
-              // console.log("Map ", groupItemsMap);
-              // console.log("One item per group ", groupItemsMap.get("case"));
-
+              tableFields.push({
+                name: groups,
+                fields: items
+              });
+              console.log("Table Fields onMount ", tableFields);
               console.log("Items on Mount>>>>>>>> ", items);
               console.log("Groups on Mount>>>>>>>>>>", groups);
 
@@ -211,6 +214,10 @@ export class GroupedComponent extends React.Component<{}, IDetailsListGroupedExa
           //we will use this items variable in our initial state below
           const items = fetchXMLHelper.getStrippedItems();
           const groups = fetchXMLHelper.getStrippedGroups();
+          tableFields.push({
+            name: groups,
+            fields: items
+          });
 
           if (FetchXMLHelper.xmlPartIds.includes(groups)) {
           } else {
@@ -445,7 +452,6 @@ export class GroupedComponent extends React.Component<{}, IDetailsListGroupedExa
           Update Content Controls
         </Button> */}
 
-        <MultiLineTextBox />
         {/* Might need to use the value field to clear Textfield, look at react form docs https://reactjs.org/docs/forms.html */}
         <TextField label="Enter FetchXML" multiline rows={3} value={this.state.value} onChange={this.handleChange} />
         <Button
