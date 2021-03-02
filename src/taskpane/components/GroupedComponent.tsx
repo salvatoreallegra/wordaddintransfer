@@ -307,7 +307,7 @@ export class GroupedComponent extends React.Component<{}, IDetailsListGroupedExa
 
         xmlPart.deleteAsync(function() {
           //write("The XML Part has been deleted.");
-          console.log(eventArgs);
+          console.log();
           console.log("xml part deleted");
           const xmlString = enteredXmlString; //this.state.value;
           console.log(xmlString);
