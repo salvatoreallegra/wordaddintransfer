@@ -1,12 +1,9 @@
 import * as React from "react";
-//import axios from "axios";
 import { TextField } from "office-ui-fabric-react/lib/TextField";
 
 import { Button, ButtonType } from "office-ui-fabric-react";
 import { FetchXMLHelper } from "../../helpers/fetchXMLParser";
-//import { MultiLineTextBox } from "./MultiLineTextBox";
 import {
-  //DefaultButton,
   DetailsHeader,
   DetailsList,
   IColumn,
@@ -129,7 +126,7 @@ export class GroupedComponent extends React.Component<{}, IDetailsListGroupedExa
           await contentXmlPart.getXmlAsync(asyncResult => {
             console.log("Value Based on ID  ", asyncResult.value);
             console.log("Office settings ", Office.context.document.settings);
-            debugger;
+
             const fetchXMLHelper = new FetchXMLHelper(asyncResult.value);
             fetchXMLHelper.parseFetchXML(component.state.tableFields); //John
 
@@ -333,6 +330,7 @@ export class GroupedComponent extends React.Component<{}, IDetailsListGroupedExa
 
         xmlPart.deleteAsync(function(eventArgs) {
           //write("The XML Part has been deleted.");
+          console.log(eventArgs);
           console.log("xml part deleted");
           const xmlString = enteredXmlString; //this.state.value;
           console.log(xmlString);
