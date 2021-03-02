@@ -1,11 +1,17 @@
 import * as React from "react";
+<<<<<<< HEAD
 import Header from "./Header";
 import { HeroListItem } from "./HeroList";
+=======
+//import { Button, ButtonType } from "office-ui-fabric-react";
+import Header from "./Header";
+import { /*HeroList,*/ HeroListItem } from "./HeroList";
+>>>>>>> c627c17383e41e6d41d3425b5de533b70b6a1d88
 import Progress from "./Progress";
 // images references in the manifest
-import "../../../assets/icon-16.png";
-import "../../../assets/icon-32.png";
-import "../../../assets/icon-80.png";
+// import "../../../assets/icon-16.png";
+// import "../../../assets/icon-32.png";
+// import "../../../assets/icon-80.png";
 import { GroupedComponent } from "./GroupedComponent";
 /* global Button Header, HeroList, HeroListItem, Progress, Word */
 
