@@ -70,7 +70,6 @@ export class FetchXMLHelper {
     this.strippedGroups.push(this.groupsObj);
     console.log("Item Counter ", itemCounter )
     //John: let tablesFields = this.getTablesFields();
-    debugger;
     for(let i = 0; i < tableFields && tableFields.length; i++){ //John: 
 
       console.log("Loop....",tableFields[i]);
