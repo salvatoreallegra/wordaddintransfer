@@ -1,6 +1,6 @@
 import * as React from "react";
 import { TextField } from "office-ui-fabric-react/lib/TextField";
-
+import axios from "axios";
 import { Button, ButtonType } from "office-ui-fabric-react";
 import { FetchXMLHelper } from "../../helpers/fetchXMLParser";
 import {
@@ -92,6 +92,27 @@ export class GroupedComponent extends React.Component<{}, IDetailsListGroupedExa
       /**
        * Insert your Word code here
        */
+      let config = {
+        headers: {
+          "Content-Type": "application-json"
+        }
+      };
+      axios
+        .post(
+          "https://prod-08.usgovvirginia.logic.azure.us:443/workflows/8e0e7d7919b2426ca76b41385cb1d4f4/triggers/manual/paths/invoke?api-version=2016-10-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=BAqRIP9ud3MDh92IzSlskmMSK7hEkn2rWUxSpSy7Sp8",
+          {
+            Dataset: "Finn"
+          },
+          config
+        )
+        .then(
+          response => {
+            console.log("***********************", response);
+          },
+          error => {
+            console.log("****************************", error);
+          }
+        );
 
       // insert a paragraph at the end of the document.
       const paragraph = context.document.body.insertParagraph("ComponentDidMount", Word.InsertLocation.end);
