@@ -99,77 +99,68 @@ export class GroupedComponent extends React.Component<{}, IDetailsListGroupedExa
   };
 
   setDisplay = (asyncResult, component, contentXmlPart, contentXmlParts) => {
-    
-      console.log("Value Based on ID  ", asyncResult.value);
-      console.log("Office settings ", Office.context.document.settings);
-      const fetchXMLHelper = new FetchXMLHelper(asyncResult.value);
-      fetchXMLHelper.parseFetchXML(component.state.tableFields); //John
+    console.log("Value Based on ID  ", asyncResult.value);
+    console.log("Office settings ", Office.context.document.settings);
+    const fetchXMLHelper = new FetchXMLHelper(asyncResult.value);
+    fetchXMLHelper.parseFetchXML(component.state.tableFields); //John
 
+    //we will use this items variable in our initial state below
+    const items = fetchXMLHelper.getStrippedItems();
+    const groups = fetchXMLHelper.getStrippedGroups();
 
-      //we will use this items variable in our initial state below
-      const items = fetchXMLHelper.getStrippedItems();
-      const groups = fetchXMLHelper.getStrippedGroups();
-
-      component.setState({
-        //come back to properly changing state
-        tableFields: {
-          groups,
-          items
-        }
-      });
-
-      //John :
-      // tableFields.push({
-      //   name: groups,
-      //   fields: items
-      // });
-      console.log("Table Fields onMount ", component.state.tableFields);
-      console.log("Items on Mount>>>>>>>> ", items);
-      console.log("Groups on Mount>>>>>>>>>>", groups);
-
-      component.setState({ items: [...component.state.items, ...items] }); //John: do we need this? It was commented out.
-      //for each group, check my corresponding items from the other array and get the count
-      //set the startIndex to the count of my corresponding item array
-      component.setState({ groups: [...component.state.groups, ...groups] });
-    
-      contentXmlPart = contentXmlParts && contentXmlParts.shift();
-      if(contentXmlPart){
-        contentXmlPart.getXmlAsync(asyncResult => {
-          component.setDisplay(asyncResult, component, contentXmlPart, contentXmlParts);
-        });
+    component.setState({
+      //come back to properly changing state
+      tableFields: {
+        groups,
+        items
       }
-  }
+    });
+
+    //John :
+    // tableFields.push({
+    //   name: groups,
+    //   fields: items
+    // });
+    console.log("Table Fields onMount ", component.state.tableFields);
+    console.log("Items on Mount>>>>>>>> ", items);
+    console.log("Groups on Mount>>>>>>>>>>", groups);
+
+    component.setState({ items: [...component.state.items, ...items] }); //John: do we need this? It was commented out.
+    //for each group, check my corresponding items from the other array and get the count
+    //set the startIndex to the count of my corresponding item array
+    component.setState({ groups: [...component.state.groups, ...groups] });
+
+    contentXmlPart = contentXmlParts && contentXmlParts.shift();
+    if (contentXmlPart) {
+      contentXmlPart.getXmlAsync(asyncResult => {
+        component.setDisplay(asyncResult, component, contentXmlPart, contentXmlParts);
+      });
+    }
+  };
 
   populateGridFromXmlPartOnMount = async () => {
     let component = this;
     return Word.run(async context => {
       //Get all the xml parts for the namespace in the doc, then populate grid
-      Office.context.document.customXmlParts.getByNamespaceAsync("http://schemas.pacts.com/case", function (
-        eventArgs
-      ) {
+      Office.context.document.customXmlParts.getByNamespaceAsync("http://schemas.pacts.com/case", function(eventArgs) {
         console.log("Found " + eventArgs.value.length + " parts with this namespace");
         console.log("Event args", eventArgs);
         console.log("Event Args value ", eventArgs.value);
 
         //eventArgs.value.forEach(function(contentXmlPart) {John
-          const contentXmlPart = eventArgs.value && eventArgs.value.shift();
-          const pactsXmlId = Office.context.document.settings.get("case");
-          console.log("Checking id ", pactsXmlId);
-          //John: await Office.context.document.customXmlParts.getByIdAsync(id.id, asyncResult => {
-          
-          
-          contentXmlPart.getXmlAsync(asyncResult => {
-            component.setDisplay(asyncResult, component, contentXmlPart, eventArgs.value);
-          });
-          
+        const contentXmlPart = eventArgs.value && eventArgs.value.shift();
+        const pactsXmlId = Office.context.document.settings.get("case");
+        console.log("Checking id ", pactsXmlId);
+        //John: await Office.context.document.customXmlParts.getByIdAsync(id.id, asyncResult => {
+
+        contentXmlPart.getXmlAsync(asyncResult => {
+          component.setDisplay(asyncResult, component, contentXmlPart, eventArgs.value);
+        });
       });
 
-    
       await context.sync();
     });
   };
-
-  getAllXmlParts() {}
 
   populateGridFromXmlOnAdd = async xmlPartId => {
     return Word.run(async context => {
@@ -282,7 +273,9 @@ export class GroupedComponent extends React.Component<{}, IDetailsListGroupedExa
 
       //Office.context.document.settings.
       Office.context.document.customXmlParts.addAsync(xmlString, asyncResult => {
+        debugger;
         console.log("New XML Part Created");
+        console.log("Async Reulst AddAsync ", asyncResult);
         Office.context.document.settings.set(xmlPartId, asyncResult.value.id);
         console.log("Async id", asyncResult.value.id);
         Office.context.document.settings.saveAsync(function() {
