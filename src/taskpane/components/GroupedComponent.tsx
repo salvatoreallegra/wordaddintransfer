@@ -97,6 +97,31 @@ export class GroupedComponent extends React.Component<{}, IDetailsListGroupedExa
       await context.sync();
     });
   };
+  grabContentControl = () => {
+    Word.run(function(context) {
+      // Create a proxy object for the content controls collection.
+      var contentControls = context.document.contentControls;
+
+      // Queue a command to load the id property for all of content controls.
+      context.load(contentControls, "id");
+
+      return context.sync().then(function() {
+        if (contentControls.items.length === 0) {
+          console.log("No content control found.");
+        } else {
+          contentControls.items[0].insertHtml(
+            "<strong>HTML content inserted into the content control.</strong>",
+            "Start"
+          );
+        }
+      });
+    }).catch(function(error) {
+      console.log("Error: " + JSON.stringify(error));
+      if (error instanceof OfficeExtension.Error) {
+        console.log("Debug info: " + JSON.stringify(error.debugInfo));
+      }
+    });
+  };
 
   setDisplay = (asyncResult, component, contentXmlPart, contentXmlParts) => {
     console.log("Value Based on ID  ", asyncResult.value);
@@ -206,6 +231,7 @@ export class GroupedComponent extends React.Component<{}, IDetailsListGroupedExa
   public componentDidMount() {
     this.runOnMount();
     this.populateGridFromXmlPartOnMount();
+    this.grabContentControl();
   }
 
   public componentWillUnmount() {

@@ -4,6 +4,7 @@ import { AppContainer } from "react-hot-loader";
 import { initializeIcons } from "office-ui-fabric-react/lib/Icons";
 import * as React from "react";
 import * as ReactDOM from "react-dom";
+import { getCaseId } from "../helpers/officeHelpers";
 /* global AppContainer, Component, document, Office, module, require */
 
 initializeIcons();
@@ -24,31 +25,32 @@ const render = Component => {
 /* Render application after Office initializes */
 Office.initialize = () => {
   isOfficeInitialized = true;
-  console.log(">>>>>Intialized");
   render(App);
 };
 
-Office.onReady(function(info) {
-  console.log("<<<<<<<<< in onready");
-  console.log(info);
-  return Word.run(async context => {
-    let paragraphs = context.document.body.paragraphs;
-    paragraphs.load("$none"); // Don't need any properties; just wrap each paragraph with a content control.
+Office.onReady(function() {
+  Word.run(function(context) {
+    // Create a proxy object for the content controls collection.
+    var contentControls = context.document.contentControls;
+    console.log("Titleeee >>>>> " + getCaseId());
+    // Queue a command to load the id property for all of content controls.
+    context.load(contentControls, "id");
 
-    await context.sync();
-
-    for (let i = 0; i < paragraphs.items.length; i++) {
-      let contentControl = paragraphs.items[i].insertContentControl();
-      // For even, tag "even".
-      if (i % 2 === 0) {
-        contentControl.tag = "even";
+    return context.sync().then(function() {
+      if (contentControls.items.length === 0) {
+        console.log("No content control found.");
       } else {
-        contentControl.tag = "odd";
+        contentControls.items[0].insertHtml(
+          "<strong>HTML content inserted into the content control.</strong>",
+          "Start"
+        );
       }
+    });
+  }).catch(function(error) {
+    console.log("Error: " + JSON.stringify(error));
+    if (error instanceof OfficeExtension.Error) {
+      console.log("Debug info: " + JSON.stringify(error.debugInfo));
     }
-    console.log("Content controls inserted: " + paragraphs.items.length);
-
-    await context.sync();
   });
 });
 
