@@ -6,10 +6,7 @@ export class FetchXMLHelper {
   thisTableFields = [];
   strippedItems = [];
   strippedGroups = [];
-  // groupsObj = {
-  //   count:0
-
-  // };
+  
    groupsObj = {
     key: "",
     name: "",
@@ -18,15 +15,10 @@ export class FetchXMLHelper {
     level: 0
   };
 
-  //endIndex;
-
-  static xmlPartIds = [];
-
   constructor(fetchXML) {
     this.fetchXML = fetchXML;
    // this.endIndex = endIndex;
-    //John: this.thisTableFields = tableFields;
-   console.log("*************** table fields",this.thisTableFields);
+   //John: this.thisTableFields = tableFields;
    
   } 
 
@@ -51,7 +43,7 @@ export class FetchXMLHelper {
           count: itemCounter,
           level: 0
         };
-        //
+        
         //this.strippedGroups.push(groupsObj);
        
       }
@@ -60,28 +52,24 @@ export class FetchXMLHelper {
           key: uuid(),
           name: nodeValue
         };
-        itemCounter++;
-        //endIndex++;
+        itemCounter++;        
         this.strippedItems.push(stateObj);
       }
     }
     this.groupsObj["count"] = itemCounter;
-    //this.groupsObj["startIndex"] = endIndex;
+ 
     this.strippedGroups.push(this.groupsObj);
-    console.log("Item Counter ", itemCounter )
     //John: let tablesFields = this.getTablesFields();
     for(let i = 0; i < tableFields && tableFields.length; i++){ //John: 
 
       console.log("Loop....",tableFields[i]);
     }
     
-    console.log("Inside fetchxml Module ", this.strippedGroups);
-    console.log("Inside fetchxml module....", this.strippedItems);
+    
 
     return tableFields;
   }
   getTablesFields(){
-    console.log("Inside PrintTableFields Function ", this.thisTableFields);
     return this.thisTableFields;
   }
   getStrippedItems() {
@@ -90,7 +78,5 @@ export class FetchXMLHelper {
   getStrippedGroups() {
     return this.strippedGroups;
   }
-  // getEndIndex(){
-  //   return this.endIndex;
-  // }
+ 
 }

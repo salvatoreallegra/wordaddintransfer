@@ -124,8 +124,6 @@ export class GroupedComponent extends React.Component<{}, IDetailsListGroupedExa
   };
 
   setDisplay = (asyncResult, component, contentXmlPart, contentXmlParts) => {
-    console.log("Value Based on ID  ", asyncResult.value);
-    console.log("Office settings ", Office.context.document.settings);
     const fetchXMLHelper = new FetchXMLHelper(asyncResult.value);
     fetchXMLHelper.parseFetchXML(component.state.tableFields); //John
 
@@ -146,9 +144,6 @@ export class GroupedComponent extends React.Component<{}, IDetailsListGroupedExa
     //   name: groups,
     //   fields: items
     // });
-    console.log("Table Fields onMount ", component.state.tableFields);
-    console.log("Items on Mount>>>>>>>> ", items);
-    console.log("Groups on Mount>>>>>>>>>>", groups);
 
     component.setState({ items: [...component.state.items, ...items] }); //John: do we need this? It was commented out.
     //for each group, check my corresponding items from the other array and get the count
@@ -167,6 +162,7 @@ export class GroupedComponent extends React.Component<{}, IDetailsListGroupedExa
     let component = this;
     return Word.run(async context => {
       //Get all the xml parts for the namespace in the doc, then populate grid
+
       Office.context.document.customXmlParts.getByNamespaceAsync("http://schemas.pacts.com/case", function(eventArgs) {
         console.log("Found " + eventArgs.value.length + " parts with this namespace");
         console.log("Event args", eventArgs);
@@ -189,8 +185,6 @@ export class GroupedComponent extends React.Component<{}, IDetailsListGroupedExa
 
   populateGridFromXmlOnAdd = async xmlPartId => {
     return Word.run(async context => {
-      console.log("From pop grid on click ...", xmlPartId);
-
       const pactsXmlId = Office.context.document.settings.get(xmlPartId);
       Office.context.document.customXmlParts.getByIdAsync(pactsXmlId, asyncResult => {
         asyncResult.value.getXmlAsync(asyncResult => {
@@ -208,20 +202,8 @@ export class GroupedComponent extends React.Component<{}, IDetailsListGroupedExa
             }
           });
 
-          if (FetchXMLHelper.xmlPartIds.includes(groups)) {
-          } else {
-            FetchXMLHelper.xmlPartIds.push(groups);
-          }
-
-          console.log("Items on Add Click >>>>>>>> ", items);
-          console.log("Groups on Add Click >>>>>>>>>>", groups);
-
-          console.log("State groups ", this.state.groups);
-          console.log("State items ", this.state.items);
           this.setState({ items: [...this.state.items, ...items] });
           this.setState({ groups: [...this.state.groups, ...groups] });
-          console.log("Current state of items ", this.state.items);
-          console.log("Current state of groups ", this.state.groups);
         });
       });
       await context.sync();
@@ -237,7 +219,7 @@ export class GroupedComponent extends React.Component<{}, IDetailsListGroupedExa
   public componentWillUnmount() {
     if (this.state.showItemIndexInView) {
       const itemIndexInView = this._root.current!.getStartItemIndexInView();
-      alert("first item index that was in view: " + itemIndexInView);
+      console.log(itemIndexInView);
     }
   }
 
@@ -246,13 +228,6 @@ export class GroupedComponent extends React.Component<{}, IDetailsListGroupedExa
       var serviceNameRange = context.document.getSelection();
       var serviceNameContentControl = serviceNameRange.insertContentControl();
 
-      // serviceNameContentControl.set({
-      //   color: "red",
-      //   title: "Odd ContentControl #" + (i + 1),
-      //   appearance: "Tags"
-      // });
-
-      //serviceNameContentControl.subtype; //gets content control type
       serviceNameContentControl.title = "Service Name";
       serviceNameContentControl.title = item.name;
       serviceNameContentControl.tag = "serviceName";
@@ -262,14 +237,6 @@ export class GroupedComponent extends React.Component<{}, IDetailsListGroupedExa
     });
   };
 
-  // updateContentControls = () => {
-  //   return Word.run(async context => {
-  //     var serviceNameContentControl = context.document.contentControls.getByTag("serviceName").getFirst();
-  //     serviceNameContentControl.insertText("Fabrikam Online Productivity Suite", "Replace");
-  //     await context.sync();
-  //   });
-  // };
-
   add = () => {
     return Word.run(async context => {
       var serviceNameContentControl = context.document.contentControls.getByTag("serviceName").getFirst();
@@ -278,20 +245,18 @@ export class GroupedComponent extends React.Component<{}, IDetailsListGroupedExa
     });
   };
 
+  //If there is no xml part in the doc we will get an undefined error
   setGetXMLPart = functionAsParam => {
     //we probably need to validate the xml entered into the multiline textbox
     let enteredXmlString = this.state.value;
-    console.log("Entered xml string ", enteredXmlString);
 
     //Parse the table name out of the xml, this will be the Key or Id for the xml part saved in the doc
     const fetchXMLHelperTextBox = new FetchXMLHelper(enteredXmlString);
     fetchXMLHelperTextBox.parseFetchXML(this.state.tableFields);
     let strippedGroups = fetchXMLHelperTextBox.getStrippedGroups();
     let xmlPartId = strippedGroups[0].name;
-    console.log("xml part id ", xmlPartId);
 
     const pactsXmlId = Office.context.document.settings.get(xmlPartId);
-    console.log("Pacts xml id ", pactsXmlId); //if null
 
     if (pactsXmlId === null) {
       //create new xml part with xmlpartid as key
@@ -299,11 +264,8 @@ export class GroupedComponent extends React.Component<{}, IDetailsListGroupedExa
 
       //Office.context.document.settings.
       Office.context.document.customXmlParts.addAsync(xmlString, asyncResult => {
-        debugger;
-        console.log("New XML Part Created");
-        console.log("Async Reulst AddAsync ", asyncResult);
         Office.context.document.settings.set(xmlPartId, asyncResult.value.id);
-        console.log("Async id", asyncResult.value.id);
+
         Office.context.document.settings.saveAsync(function() {
           if (asyncResult.status == Office.AsyncResultStatus.Failed) {
             console.log("Settings save failed. Error: " + asyncResult.error.message);
@@ -322,18 +284,14 @@ export class GroupedComponent extends React.Component<{}, IDetailsListGroupedExa
         //create new xml part with table name as key
 
         var xmlPart = result.value;
-        console.log("XML Part", xmlPart);
 
         xmlPart.deleteAsync(function() {
           //write("The XML Part has been deleted.");
-          console.log();
-          console.log("xml part deleted");
+
           const xmlString = enteredXmlString; //this.state.value;
-          console.log(xmlString);
           //Office.context.document.settings.
           Office.context.document.customXmlParts.addAsync(xmlString, asyncResult => {
             Office.context.document.settings.set(xmlPartId, asyncResult.value.id);
-            console.log("Async id When ", asyncResult.value.id);
 
             Office.context.document.settings.saveAsync(function(asyncResult) {
               if (asyncResult.status == Office.AsyncResultStatus.Failed) {
@@ -341,53 +299,14 @@ export class GroupedComponent extends React.Component<{}, IDetailsListGroupedExa
               } else {
                 console.log("Saved new XML Part");
                 functionAsParam(xmlPartId);
-                //this.populateGridFromXmlOnAdd(xmlPartId);
               }
             });
           });
         });
       });
     }
-    //this.populateGridFromXmlOnAdd(xmlPartId);
-    // Office.context.document.customXmlParts.getByIdAsync(pactsXmlId, asyncResult => {
-    //   asyncResult.value.getXmlAsync(asyncResult => {
-    //     console.log("Value Based on ID Check This Now ", asyncResult.value);
-    //     console.log("Office settings ", Office.context.document.settings);
-    //   });
-    // });
-
-    //Deletes xml part, good version
-
-    // const pactsXmlId = Office.context.document.settings.get("Rogue");
-    // console.log(pactsXmlId);
-    // Office.context.document.customXmlParts.getByIdAsync(pactsXmlId, function(result) {
-    //   var xmlPart = result.value;
-    //   xmlPart.deleteAsync(function(eventArgs) {
-    //     //write("The XML Part has been deleted.");
-    //     console.log("xml part deleted");
-    //   });
-    // });
-
-    //Creates an xmlPart and associates id with it
-
-    // const xmlString = xmlDoc2; //this.state.value;
-    // console.log(xmlString);
-    // //Office.context.document.settings.
-    // Office.context.document.customXmlParts.addAsync(xmlString, asyncResult => {
-    //   Office.context.document.settings.set("Dungeon", asyncResult.value.id);
-    //   console.log("Async id", asyncResult.value.id);
-    //   Office.context.document.settings.saveAsync();
-    // });
 
     this.setState({ value: "" });
-
-    // const pactsXmlId = Office.context.document.settings.get("PactsXml");
-    // Office.context.document.customXmlParts.getByIdAsync(reviewersXmlId, asyncResult => {
-    //   asyncResult.value.getXmlAsync(asyncResult => {
-    //     console.log("Value Based on ID  ", asyncResult.value);
-    //     console.log("Office settings ", Office.context.document.settings);
-    //   });
-    // });
   };
 
   handleChange(event) {
@@ -399,23 +318,6 @@ export class GroupedComponent extends React.Component<{}, IDetailsListGroupedExa
 
     return (
       <div>
-        {/* <div className={controlWrapperClass}>
-          <DefaultButton onClick={this._addItem} text="Add an item" styles={addItemButtonStyles} />
-          <Toggle
-            label="Compact mode"
-            inlineLabel
-            checked={isCompactMode}
-            onChange={this._onChangeCompactMode}
-            styles={toggleStyles}
-          />
-          <Toggle
-            label="Show index of first item in view when unmounting"
-            inlineLabel
-            checked={this.state.showItemIndexInView}
-            onChange={this._onShowItemIndexInViewChanged}
-            styles={toggleStyles}
-          />
-        </div> */}
         <DetailsList
           componentRef={this._root}
           items={items}
@@ -436,14 +338,6 @@ export class GroupedComponent extends React.Component<{}, IDetailsListGroupedExa
           onRenderItemColumn={this._onRenderColumn}
           compact={isCompactMode}
         />
-        {/* <Button
-          className="ms-welcome__action"
-          buttonType={ButtonType.hero}
-          iconProps={{ iconName: "ChevronRight" }}
-          onClick={this.updateContentControls}
-        >
-          Update Content Controls
-        </Button> */}
 
         {/* Might need to use the value field to clear Textfield, look at react form docs https://reactjs.org/docs/forms.html */}
         <TextField label="Enter FetchXML" multiline rows={3} value={this.state.value} onChange={this.handleChange} />
@@ -459,30 +353,6 @@ export class GroupedComponent extends React.Component<{}, IDetailsListGroupedExa
     );
   }
 
-  // private _addItem = (): void => {
-  //   const items = this.state.items;
-  //   const groups = [...this.state.groups];
-  //   groups[_blueGroupIndex].count++;
-
-  //   this.setState(
-  //     {
-  //       items: items.concat([
-  //         {
-  //           key: "item-" + items.length,
-  //           name: "New item " + items.length,
-  //           color: "blue"
-  //         }
-  //       ]),
-  //       groups
-  //     },
-  //     () => {
-  //       if (this._root.current) {
-  //         this._root.current.focusIndex(items.length, true);
-  //       }
-  //     }
-  //   );
-  // };
-
   private _onRenderDetailsHeader(props: IDetailsHeaderProps, _defaultRender?: IRenderFunction<IDetailsHeaderProps>) {
     return <DetailsHeader {...props} ariaLabelForToggleAllGroupsButton={"Expand collapse groups"} />;
   }
@@ -493,12 +363,4 @@ export class GroupedComponent extends React.Component<{}, IDetailsListGroupedExa
 
     return <div data-is-focusable={true}>{value}</div>;
   }
-
-  // private _onShowItemIndexInViewChanged = (_event: React.MouseEvent<HTMLInputElement>, checked: boolean): void => {
-  //   this.setState({ showItemIndexInView: checked });
-  // };
-
-  // private _onChangeCompactMode = (_ev: React.MouseEvent<HTMLElement>, checked: boolean): void => {
-  //   this.setState({ isCompactMode: checked });
-  // };
 }
