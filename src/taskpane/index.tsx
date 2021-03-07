@@ -4,6 +4,7 @@ import { AppContainer } from "react-hot-loader";
 import { initializeIcons } from "office-ui-fabric-react/lib/Icons";
 import * as React from "react";
 import * as ReactDOM from "react-dom";
+import { FetchXMLHelper } from "../helpers/fetchXMLParser";
 
 initializeIcons();
 
@@ -41,7 +42,7 @@ Office.onReady(function() {
     let titleOfDoc = document.properties.title;
     let caseId = getCaseIdFromDocTitle(titleOfDoc);
     createCaseIdXmlPart(caseId);
-    insertCaseIdIntoXMLPart();
+    insertCaseIdIntoXMLPart(caseId);
   });
 });
 
@@ -50,6 +51,7 @@ function getCaseIdFromDocTitle(strDocTitle) {
   let txtCaseId = str.match(/(\d+)/);
   let caseId = parseInt(txtCaseId[0]);
   console.log("STR Doc ", caseId);
+  return caseId;
 }
 
 function createCaseIdXmlPart(caseId) {
@@ -76,7 +78,7 @@ function createCaseIdXmlPart(caseId) {
     }
   });
 }
-function insertCaseIdIntoXMLPart() {
+function insertCaseIdIntoXMLPart(caseId) {
   Office.context.document.customXmlParts.getByNamespaceAsync("http://schemas.pacts.com/case", function(eventArgs) {
     console.log("Found " + eventArgs.value.length + " parts with this namespace");
     console.log("Event args", eventArgs);
@@ -89,6 +91,9 @@ function insertCaseIdIntoXMLPart() {
         var xmlPart = result.value;
         xmlPart.getXmlAsync(function(eventArgs) {
           console.log("We have xml ", eventArgs.value);
+          const idInserter = new FetchXMLHelper(eventArgs.value);
+          idInserter.insertFilterWithCaseId();
+          console.log("case id >>>>>>  ", caseId);
         });
       });
     });

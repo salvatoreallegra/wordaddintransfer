@@ -55,7 +55,11 @@ export class FetchXMLHelper {
         itemCounter++;        
         this.strippedItems.push(stateObj);
       }
+      if(nodeName === "filter"){
+        console.log("filter found");
+      }
     }
+    
     this.groupsObj["count"] = itemCounter;
  
     this.strippedGroups.push(this.groupsObj);
@@ -68,6 +72,23 @@ export class FetchXMLHelper {
     
 
     return tableFields;
+  }
+
+  insertFilterWithCaseId(){
+    var node = new DOMParser().parseFromString(this.fetchXML, "text/xml").documentElement;
+
+    var nodes = node.querySelectorAll("*");
+    var nodeName = null;
+    //let nodeValue = null;       
+    
+    for (var i = 0; i < nodes.length; i++) {      
+     
+      nodeName = nodes[i].nodeName; //get text value or the name of the node
+      //nodeValue = nodes[i].getAttribute("name");
+      if(nodeName === "filter"){
+        console.log("filter found", nodeName);
+      }
+    }
   }
   getTablesFields(){
     return this.thisTableFields;
