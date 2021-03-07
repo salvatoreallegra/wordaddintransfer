@@ -1,7 +1,7 @@
-<fetch top="50" >
+<fetch>
   <entity name="incident" >
     <filter>
-      <condition attribute="incidentid" operator="eq" value="22bf8c29-393a-eb11-a813-001dd8017e89" />
+      <condition attribute="incidentid" operator="eq" value="7f2d9adb-377c-eb11-a812-001dd80490a7" />
     </filter>
   </entity>
 </fetch>

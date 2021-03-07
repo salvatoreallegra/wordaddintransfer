@@ -4,8 +4,6 @@ import { AppContainer } from "react-hot-loader";
 import { initializeIcons } from "office-ui-fabric-react/lib/Icons";
 import * as React from "react";
 import * as ReactDOM from "react-dom";
-//import { getCaseId } from "../helpers/officeHelpers";
-/* global AppContainer, Component, document, Office, module, require */
 
 initializeIcons();
 
@@ -38,17 +36,16 @@ Office.onReady(function() {
 
     // Queue a command to load the id property for all of content controls.
     context.load(contentControls, "id");
-    // let extract = new CaseIdExtractor();
-    // extract.getCaseId();
 
     await context.sync();
     let titleOfDoc = document.properties.title;
-    let caseId = getCaseId(titleOfDoc);
+    let caseId = getCaseIdFromDocTitle(titleOfDoc);
     createCaseIdXmlPart(caseId);
+    insertCaseIdIntoXMLPart();
   });
 });
 
-function getCaseId(strDocTitle) {
+function getCaseIdFromDocTitle(strDocTitle) {
   let str = strDocTitle;
   let txtCaseId = str.match(/(\d+)/);
   let caseId = parseInt(txtCaseId[0]);
@@ -79,7 +76,24 @@ function createCaseIdXmlPart(caseId) {
     }
   });
 }
+function insertCaseIdIntoXMLPart() {
+  Office.context.document.customXmlParts.getByNamespaceAsync("http://schemas.pacts.com/case", function(eventArgs) {
+    console.log("Found " + eventArgs.value.length + " parts with this namespace");
+    console.log("Event args", eventArgs);
+    console.log("Event Args value ", eventArgs.value);
 
+    eventArgs.value.forEach(function(item) {
+      console.log("Id's on load", item.id);
+
+      Office.context.document.customXmlParts.getByIdAsync(item.id, function(result) {
+        var xmlPart = result.value;
+        xmlPart.getXmlAsync(function(eventArgs) {
+          console.log("We have xml ", eventArgs.value);
+        });
+      });
+    });
+  });
+}
 if ((module as any).hot) {
   (module as any).hot.accept("./components/App", () => {
     const NextApp = require("./components/App").default;
