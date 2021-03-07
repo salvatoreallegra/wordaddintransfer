@@ -43,8 +43,8 @@ Office.onReady(function() {
 
     await context.sync();
     let titleOfDoc = document.properties.title;
-    getCaseId(titleOfDoc);
-    createCaseIdXmlPart();
+    let caseId = getCaseId(titleOfDoc);
+    createCaseIdXmlPart(caseId);
   });
 });
 
@@ -55,20 +55,28 @@ function getCaseId(strDocTitle) {
   console.log("STR Doc ", caseId);
 }
 
-function createCaseIdXmlPart() {
+function createCaseIdXmlPart(caseId) {
   const xmlPartId = "caseId";
-  const xmlString = "<AddIn xmlns='http://schemas.pacts.com/caseId'><caseId name= caseId> </caseId></AddIn>";
+  const xmlString =
+    '<AddIn xmlns="http://schemas.pacts.com/caseId"><caseId name="' + { caseId } + '"> </caseId></AddIn>';
 
-  Office.context.document.customXmlParts.addAsync(xmlString, asyncResult => {
-    Office.context.document.settings.set(xmlPartId, asyncResult.value.id);
+  //Find out if the caseId XML Part exists, if it does we don't make another one.
+  Office.context.document.customXmlParts.getByNamespaceAsync("http://schemas.pacts.com/caseId", function(eventArgs) {
+    console.log("Found " + eventArgs.value.length + " parts with this namespace");
+    //If there are no XML Parts in this namespace we create it.
+    if (eventArgs.value.length === 0) {
+      Office.context.document.customXmlParts.addAsync(xmlString, asyncResult => {
+        Office.context.document.settings.set(xmlPartId, asyncResult.value.id);
 
-    Office.context.document.settings.saveAsync(function(asyncResult) {
-      if (asyncResult.status == Office.AsyncResultStatus.Failed) {
-        console.log("Settings save failed. Error: " + asyncResult.error.message);
-      } else {
-        console.log("Saved new XML Part");
-      }
-    });
+        Office.context.document.settings.saveAsync(function(asyncResult) {
+          if (asyncResult.status == Office.AsyncResultStatus.Failed) {
+            console.log("Settings save failed. Error: " + asyncResult.error.message);
+          } else {
+            console.log("Saved new XML Part");
+          }
+        });
+      });
+    }
   });
 }
 

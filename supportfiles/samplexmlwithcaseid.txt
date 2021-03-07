@@ -1,0 +1,7 @@
+<fetch top="50" >
+  <entity name="incident" >
+    <filter>
+      <condition attribute="incidentid" operator="eq" value="22bf8c29-393a-eb11-a813-001dd8017e89" />
+    </filter>
+  </entity>
+</fetch>

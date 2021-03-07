@@ -1,0 +1,22 @@
+<AddIn xmlns="http://schemas.pacts.com/case">
+  <fetch mapping="blah">
+    <entity name="businessunit">
+      <attribute name="unitregion" />
+      <attribute name="unitname" />
+      <attribute name="unitcity" />
+      <link-entity name="systemuser" to="owninguser">
+        <filter type="and">
+          <condition attribute="lastname" operator="ne" value="Cannon" />
+        </filter>
+      </link-entity>
+    </entity>
+  </fetch>
+</AddIn>
+
+<AddIn xmlns="http://schemas.pacts.com/caseId">
+  
+    <caseId name= "caseId">
+      
+    </caseId>
+  
+</AddIn>

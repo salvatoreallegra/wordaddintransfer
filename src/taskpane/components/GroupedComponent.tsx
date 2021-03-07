@@ -289,7 +289,8 @@ export class GroupedComponent extends React.Component<{}, IDetailsListGroupedExa
           //write("The XML Part has been deleted.");
 
           const xmlString = enteredXmlString; //this.state.value;
-          //Office.context.document.settings.
+
+          //After deleting the existing custom xml Part, we now re-create it
           Office.context.document.customXmlParts.addAsync(xmlString, asyncResult => {
             Office.context.document.settings.set(xmlPartId, asyncResult.value.id);
 
