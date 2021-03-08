@@ -1,5 +1,6 @@
 import { uuid } from "uuidv4";
 //John: import {tableFields} from "../taskpane/components/GroupedComponent"
+import { parseString } from 'xml2js';
 
 export class FetchXMLHelper {
   fetchXML;
@@ -79,7 +80,9 @@ export class FetchXMLHelper {
     var nodes = node.querySelectorAll("*");
     var nodeName = null;
     //let nodeValue = null;       
-
+    parseString(this.fetchXML,function(err,result){
+      console.log("xml result ", result);
+    });
       
     console.log("this is node ",node);
    
