@@ -86,7 +86,6 @@ export class FetchXMLHelper {
     for (var i = 0; i < nodes.length; i++) {      
      
       nodeName = nodes[i].nodeName; //get text value or the name of the node
-      
       //nodeValue = nodes[i].getAttribute("name");
       if(nodeName === "filter"){
         

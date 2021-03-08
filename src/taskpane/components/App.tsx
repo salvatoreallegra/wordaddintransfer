@@ -46,8 +46,7 @@ function getCaseIdFromDocTitle(strDocTitle) {
 
 function createCaseIdXmlPart(caseId) {
   const xmlPartId = "caseId";
-  const xmlString =
-    '<AddIn xmlns="http://schemas.pacts.com/caseId"><caseId name="' + { caseId } + '"> </caseId></AddIn>';
+  const xmlString = '<AddIn xmlns="http://schemas.pacts.com/caseId"><caseId name="' + caseId + '"> </caseId></AddIn>';
 
   //Find out if the caseId XML Part exists, if it does we don't make another one.
   Office.context.document.customXmlParts.getByNamespaceAsync("http://schemas.pacts.com/caseId", function(eventArgs) {
@@ -69,7 +68,7 @@ function createCaseIdXmlPart(caseId) {
   });
 }
 function insertCaseIdIntoXMLPart(caseId) {
-  Office.context.document.customXmlParts.getByNamespaceAsync("http://schemas.pacts.com/case", function(eventArgs) {
+  Office.context.document.customXmlParts.getByNamespaceAsync("http://schemas.pacts.com/caseId", function(eventArgs) {
     console.log("Found " + eventArgs.value.length + " parts with this namespace");
     console.log("Event args", eventArgs);
     console.log("Event Args value ", eventArgs.value);
