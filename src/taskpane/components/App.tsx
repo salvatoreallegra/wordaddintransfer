@@ -40,7 +40,7 @@ function getCaseIdFromDocTitle(strDocTitle) {
   let str = strDocTitle;
   let txtCaseId = str.match(/(\d+)/);
   let caseId = parseInt(txtCaseId[0]);
-  console.log("STR Doc ", caseId);
+
   return caseId;
 }
 
@@ -50,7 +50,6 @@ function createCaseIdXmlPart(caseId) {
 
   //Find out if the caseId XML Part exists, if it does we don't make another one.
   Office.context.document.customXmlParts.getByNamespaceAsync("http://schemas.pacts.com/caseId", function(eventArgs) {
-    console.log("Found " + eventArgs.value.length + " parts with this namespace");
     //If there are no XML Parts in this namespace we create it.
     if (eventArgs.value.length === 0) {
       Office.context.document.customXmlParts.addAsync(xmlString, asyncResult => {
@@ -68,21 +67,13 @@ function createCaseIdXmlPart(caseId) {
   });
 }
 function insertCaseIdIntoXMLPart(caseId) {
-  Office.context.document.customXmlParts.getByNamespaceAsync("http://schemas.pacts.com/caseId", function(eventArgs) {
-    console.log("Found " + eventArgs.value.length + " parts with this namespace");
-    console.log("Event args", eventArgs);
-    console.log("Event Args value ", eventArgs.value);
-
+  Office.context.document.customXmlParts.getByNamespaceAsync("http://schemas.pacts.com/case", function(eventArgs) {
     eventArgs.value.forEach(function(item) {
-      console.log("Id's on load", item.id);
-
       Office.context.document.customXmlParts.getByIdAsync(item.id, function(result) {
         var xmlPart = result.value;
         xmlPart.getXmlAsync(function(eventArgs) {
-          console.log("We have xml ", eventArgs.value);
           const idInserter = new FetchXMLHelper(eventArgs.value);
-          idInserter.insertFilterWithCaseId();
-          console.log("case id >>>>>>  ", caseId);
+          idInserter.insertFilterWithCaseId(caseId);
         });
       });
     });

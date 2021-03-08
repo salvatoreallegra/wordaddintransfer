@@ -1,6 +1,6 @@
 import { uuid } from "uuidv4";
 //John: import {tableFields} from "../taskpane/components/GroupedComponent"
-import { parseString } from 'xml2js';
+import {parseString,Builder} from 'xml2js';
 
 export class FetchXMLHelper {
   fetchXML;
@@ -56,9 +56,7 @@ export class FetchXMLHelper {
         itemCounter++;        
         this.strippedItems.push(stateObj);
       }
-      if(nodeName === "filter"){
-        console.log("filter found");
-      }
+    
     }
     
     this.groupsObj["count"] = itemCounter;
@@ -75,26 +73,25 @@ export class FetchXMLHelper {
     return tableFields;
   }
 
-  insertFilterWithCaseId(){
-    var node = new DOMParser().parseFromString(this.fetchXML, "text/xml").documentElement;
-    var nodes = node.querySelectorAll("*");
-    var nodeName = null;
-    //let nodeValue = null;       
-    parseString(this.fetchXML,function(err,result){
-      console.log("xml result ", result);
-    });
-      
-    console.log("this is node ",node);
-   
-    for (var i = 0; i < nodes.length; i++) {      
+  insertFilterWithCaseId(caseId){    
      
-      nodeName = nodes[i].nodeName; //get text value or the name of the node
-      //nodeValue = nodes[i].getAttribute("name");
-      if(nodeName === "filter"){
-        
-        console.log("filter found", nodeName);
+   parseString(this.fetchXML,function(err,result){
+     if(result){
+      if(result.AddIn.fetch[0] !== null || result.AddIn.fetch[0] !== undefined){
+      result.AddIn.fetch[0].entity[0].filter = [{condition: {$: {attribute:"incidentid",operator:"eq",value:caseId}}}];
+      let xmlBuilder = new Builder();
+      const newXml = xmlBuilder.buildObject(result);      
+      console.log("New XML ",newXml);
       }
-    }
+      else{
+        console.log("Fetch xml is null or undefined");
+      }
+     }
+     else if (err){
+       console.log(err);
+     }
+     });     
+   
   }
   getTablesFields(){
     return this.thisTableFields;
