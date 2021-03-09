@@ -3,7 +3,8 @@ import Header from "./Header";
 import { HeroListItem } from "./HeroList";
 import Progress from "./Progress";
 import { GroupedComponent } from "./GroupedComponent";
-import { FetchXMLHelper } from "../../helpers/fetchXMLParser";
+//import { FetchXMLHelper } from "../../helpers/fetchXMLParser";
+import { parseString, Builder } from "xml2js";
 
 /* global Button Header, HeroList, HeroListItem, Progress, Word */
 
@@ -14,6 +15,7 @@ export interface AppProps {
 
 export interface AppState {
   listItems: HeroListItem[];
+  xmlWithCase: [];
 }
 
 Office.onReady(function() {
@@ -23,25 +25,34 @@ Office.onReady(function() {
 
     var document = context.document;
 
-    document.properties.load("title");
+    document.properties.load("url");
 
     // Queue a command to load the id property for all of content controls.
     context.load(contentControls, "id");
 
     await context.sync();
-    let titleOfDoc = document.properties.title;
-    let caseId = getCaseIdFromDocTitle(titleOfDoc);
+    //let titleOfDoc = document.properties.title;
+    let url = Office.context.document.url;
+    console.log("The url is ", url);
+    let caseId = getCaseIdFromDocTitle(url);
     createCaseIdXmlPart(caseId);
     insertCaseIdIntoXMLPart(caseId);
+    //console.log("XML with case ", xmlWithCase);
   });
 });
 
 function getCaseIdFromDocTitle(strDocTitle) {
   let str = strDocTitle;
-  let txtCaseId = str.match(/(\d+)/);
-  let caseId = parseInt(txtCaseId[0]);
+  // let txtCaseId = str.match(/(\d+)/);
+  // let caseId = parseInt(txtCaseId[0]);
+  var caseIdArr = str.toString().match(/.*\/(.+?)\./);
+  let caseId = caseIdArr[1];
+  caseId = caseId.split("-");
+  const caseIdSplit = caseId[1];
+  console.log("Split ", caseIdSplit);
 
-  return caseId;
+  console.log("Now ....", caseIdSplit);
+  return caseIdSplit;
 }
 
 function createCaseIdXmlPart(caseId) {
@@ -72,8 +83,27 @@ function insertCaseIdIntoXMLPart(caseId) {
       Office.context.document.customXmlParts.getByIdAsync(item.id, function(result) {
         var xmlPart = result.value;
         xmlPart.getXmlAsync(function(eventArgs) {
-          const idInserter = new FetchXMLHelper(eventArgs.value);
-          idInserter.insertFilterWithCaseId(caseId);
+          // const idInserter = new FetchXMLHelper(eventArgs.value);
+          // idInserter.insertFilterWithCaseId(caseId);
+
+          parseString(eventArgs.value, function(err, result) {
+            if (result) {
+              console.log("result now ...", result);
+              if (result.AddIn.fetch[0] !== null || result.AddIn.fetch[0] !== undefined) {
+                result.AddIn.fetch[0].entity[0].filter[0].condition[0].$.value = caseId;
+                // result.AddIn.fetch[0].entity[0].filter = [
+                //   { condition: { $: { attribute: "incidentid", operator: "eq", value: caseId } } }
+                // ];
+                const xmlBuilder = new Builder();
+                let newXml = xmlBuilder.buildObject(result);
+                console.log("New XML ", newXml);
+              } else {
+                console.log("Fetch xml is null or undefined");
+              }
+            } else if (err) {
+              console.log(err);
+            }
+          });
         });
       });
     });
@@ -84,7 +114,8 @@ export default class App extends React.Component<AppProps, AppState> {
   constructor(props, context) {
     super(props, context);
     this.state = {
-      listItems: []
+      listItems: [],
+      xmlWithCase: []
     };
   }
 
@@ -135,21 +166,8 @@ export default class App extends React.Component<AppProps, AppState> {
     return (
       <div className="ms-welcome">
         <Header logo="assets/logo-filled.png" title={this.props.title} message="PACTS Word Add-In" />
-        {/* <HeroList message="Discover what Office Add-ins can do for you today!" items={this.state.listItems}> */}
-        {/* <p className="ms-font-l">
-            Modify the source files, then click <b>Run</b>.
-          </p> */}
-        <GroupedComponent />
-        {/* <Button
-            className="ms-welcome__action"
-            buttonType={ButtonType.hero}
-            iconProps={{ iconName: "ChevronRight" }}
-            onClick={this.click}
-          >
-            Run
-          </Button> */}
 
-        {/* </HeroList> */}
+        <GroupedComponent />
       </div>
     );
   }

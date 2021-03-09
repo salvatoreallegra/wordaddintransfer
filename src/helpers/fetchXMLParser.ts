@@ -3,7 +3,7 @@ import { uuid } from "uuidv4";
 import {parseString,Builder} from 'xml2js';
 
 export class FetchXMLHelper {
-  fetchXML;
+  fetchXML = "";
   thisTableFields = [];
   strippedItems = [];
   strippedGroups = [];
@@ -45,7 +45,6 @@ export class FetchXMLHelper {
           level: 0
         };
         
-        //this.strippedGroups.push(groupsObj);
        
       }
       if (nodeName === "attribute") {
@@ -67,21 +66,51 @@ export class FetchXMLHelper {
 
       console.log("Loop....",tableFields[i]);
     }
-    
-    
-
-    return tableFields;
+      return tableFields;
   }
 
-  insertFilterWithCaseId(caseId){    
-     
-   parseString(this.fetchXML,function(err,result){
+//    parseXml(xml) {
+//     return new Promise((resolve, reject) => {
+//         parseString(xml, (err, result) => {
+//             if (err) {
+//                 reject(err);
+//             } else {
+//                 resolve(result);
+//             }
+//         });
+//     });
+// }
+// processResult(result) {
+//   console.log("processResult: result: ", result);
+// }
+
+// async testXmlParse(xml) {
+//   try {
+//       let result = await this.parseXml(xml);
+//       // Now that you have the result you can do further processing, write to file etc.
+//       this.processResult(result);
+//   } catch (err) {
+//       console.error("parseXml failed: ", err);
+//   }
+// }
+
+//testXmlParse(fetchXML);
+
+
+
+
+
+   insertFilterWithCaseId(caseId){    
+    
+    parseString(this.fetchXML,  function(err,result){
      if(result){
+       console.log("result now ...",result)
       if(result.AddIn.fetch[0] !== null || result.AddIn.fetch[0] !== undefined){
-      result.AddIn.fetch[0].entity[0].filter = [{condition: {$: {attribute:"incidentid",operator:"eq",value:caseId}}}];
-      let xmlBuilder = new Builder();
-      const newXml = xmlBuilder.buildObject(result);      
-      console.log("New XML ",newXml);
+        result.AddIn.fetch[0].entity[0].filter = [{condition: {$: {attribute:"incidentid",operator:"eq",value:caseId}}}];
+        const xmlBuilder = new Builder();
+        let newXml = xmlBuilder.buildObject(result);      
+        console.log("New XML ",newXml);
+        
       }
       else{
         console.log("Fetch xml is null or undefined");
@@ -90,8 +119,9 @@ export class FetchXMLHelper {
      else if (err){
        console.log(err);
      }
+    
      });     
-   
+     
   }
   getTablesFields(){
     return this.thisTableFields;

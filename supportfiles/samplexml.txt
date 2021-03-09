@@ -1,14 +1,17 @@
 <AddIn xmlns="http://schemas.pacts.com/case">
-  <fetch mapping="blah">
-    <entity name="businessunit">
-      <attribute name="unitregion" />
-      <attribute name="unitname" />
-      <attribute name="unitcity" />
+  <fetch mapping="dontknow">
+    <entity name="">
+      <attribute name="officername" />
+      <attribute name="courtdate" />
+      <attribute name="isGuilty" />
       <link-entity name="systemuser" to="owninguser">
         <filter type="and">
           <condition attribute="lastname" operator="ne" value="Cannon" />
         </filter>
       </link-entity>
+    <filter>
+      <condition attribute="incidentid" operator="eq" value="Test" />
+    </filter>
     </entity>
   </fetch>
 </AddIn>
