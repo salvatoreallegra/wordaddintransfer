@@ -220,17 +220,19 @@ export default class App extends React.Component<AppProps, AppState> {
                   console.log("result now ...", result);
                   if (result.AddIn.fetch[0] !== null || result.AddIn.fetch[0] !== undefined) {
                     result.AddIn.fetch[0].entity[0].filter[0].condition[0].$.value = caseId;
-                    // result.AddIn.fetch[0].entity[0].filter = [
-                    //   { condition: { $: { attribute: "incidentid", operator: "eq", value: caseId } } }
-                    // ];
-                    const xmlBuilder = new Builder();
+
+                    const xmlBuilder = new Builder({ headless: true });
 
                     let newXml = xmlBuilder.buildObject(result);
                     console.log("New XML ", newXml);
-                    // console.log("New state ", this.state.xmlWithCase);
                     currentComponent.setState({
                       xmlWithCase: [...currentComponent.state.xmlWithCase, newXml]
                     });
+                    // currentComponent.setState({
+                    //   xmlWithCase: [newXml]
+                    // });
+                    console.log("Inside async ....", currentComponent.state.xmlWithCase);
+
                     //this.setState({ xmlWithCase: [...this.state.xmlWithCase, newXml] });
                   } else {
                     console.log("Fetch xml is null or undefined");
