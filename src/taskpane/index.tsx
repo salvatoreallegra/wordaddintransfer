@@ -25,25 +25,25 @@ Office.initialize = () => {
   render(App);
 };
 
-// Office.onReady(function() {
-//   Word.run(async function(context) {
-//     // Create a proxy object for the content controls collection.
-//     var contentControls = context.document.contentControls;
+Office.onReady(function() {
+  Word.run(async function(context) {
+    // Create a proxy object for the content controls collection.
+    var contentControls = context.document.contentControls;
 
-//     var document = context.document;
+    // var document = context.document;
 
-//     document.properties.load("title");
+    // document.properties.load("title");
 
-//     // Queue a command to load the id property for all of content controls.
-//     context.load(contentControls, "id");
+    // Queue a command to load the id property for all of content controls.
+    context.load(contentControls, "id");
 
-//     await context.sync();
-//     let titleOfDoc = document.properties.title;
-//     let caseId = getCaseIdFromDocTitle(titleOfDoc);
-//     createCaseIdXmlPart(caseId);
-//     insertCaseIdIntoXMLPart(caseId);
-//   });
-// });
+    await context.sync();
+    // let titleOfDoc = document.properties.title;
+    // let caseId = getCaseIdFromDocTitle(titleOfDoc);
+    // createCaseIdXmlPart(caseId);
+    // insertCaseIdIntoXMLPart(caseId);
+  });
+});
 
 // function getCaseIdFromDocTitle(strDocTitle) {
 //   let str = strDocTitle;

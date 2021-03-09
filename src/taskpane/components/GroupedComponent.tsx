@@ -110,7 +110,7 @@ export class GroupedComponent extends React.Component<{}, IDetailsListGroupedExa
           console.log("No content control found.");
         } else {
           contentControls.items[0].insertHtml(
-            "<strong>HTML content inserted into the content control.</strong>",
+            "<strong>HTML content inserted into the content control.</strong><table><tr><td>Hello</td><td>World</td></tr></table>",
             "Start"
           );
         }

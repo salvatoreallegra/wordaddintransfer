@@ -1,6 +1,6 @@
 <AddIn xmlns="http://schemas.pacts.com/case">
   <fetch mapping="dontknow">
-    <entity name="">
+    <entity name="incident">
       <attribute name="officername" />
       <attribute name="courtdate" />
       <attribute name="isGuilty" />
@@ -10,7 +10,7 @@
         </filter>
       </link-entity>
     <filter>
-      <condition attribute="incidentid" operator="eq" value="Test" />
+      <condition attribute="incidentid" operator="eq" value="_caseId_" />
     </filter>
     </entity>
   </fetch>
@@ -23,3 +23,11 @@
     </caseId>
   
 </AddIn>
+
+<fetch>
+  <entity name="incident" >
+    <filter>
+      <condition attribute="incidentid" operator="eq" value="7f2d9adb-377c-eb11-a812-001dd80490a7" />
+    </filter>
+  </entity>
+</fetch>

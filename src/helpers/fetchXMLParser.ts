@@ -69,36 +69,6 @@ export class FetchXMLHelper {
       return tableFields;
   }
 
-//    parseXml(xml) {
-//     return new Promise((resolve, reject) => {
-//         parseString(xml, (err, result) => {
-//             if (err) {
-//                 reject(err);
-//             } else {
-//                 resolve(result);
-//             }
-//         });
-//     });
-// }
-// processResult(result) {
-//   console.log("processResult: result: ", result);
-// }
-
-// async testXmlParse(xml) {
-//   try {
-//       let result = await this.parseXml(xml);
-//       // Now that you have the result you can do further processing, write to file etc.
-//       this.processResult(result);
-//   } catch (err) {
-//       console.error("parseXml failed: ", err);
-//   }
-// }
-
-//testXmlParse(fetchXML);
-
-
-
-
 
    insertFilterWithCaseId(caseId){    
     
