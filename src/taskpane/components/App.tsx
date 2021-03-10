@@ -18,6 +18,7 @@ export interface AppProps {
 export interface AppState {
   listItems: HeroListItem[];
   xmlWithCase: [];
+  xmlPartResponse: [];
 }
 
 export default class App extends React.Component<AppProps, AppState> {
@@ -25,7 +26,8 @@ export default class App extends React.Component<AppProps, AppState> {
     super(props, context);
     this.state = {
       listItems: [],
-      xmlWithCase: []
+      xmlWithCase: [],
+      xmlPartResponse: []
     };
     this.addCaseIdToPart = this.addCaseIdToPart.bind(this);
   }
@@ -47,67 +49,43 @@ export default class App extends React.Component<AppProps, AppState> {
           primaryText: "Create and visualize like a pro"
         }
       ],
-      xmlWithCase: []
+      xmlWithCase: [],
+      xmlPartResponse: []
     });
     this.addCaseIdToPart(currentComponent);
     console.log("Please work state   ", this.state.xmlWithCase);
-    //this.testDynamics();
+    this.mockResponseToState();
   }
-  testDynamics = async () => {
-    return Word.run(async context => {
-      //*************************************************************************************** */
-      var serverUrl = "https://pacts360-dev01.crm.microsoftdynamics.us/";
 
-      //window.location.href = serverUrl;
-      //var OrgServicePath = "https://pacts360-dev01.api.crm.microsoftdynamics.us/XRMServices/2011/Organization.svc";
-      console.log(serverUrl);
+  //This is a general look of what a fetchxml query might return
+  //We will store the results in state for use in the content controls
+  mockResponseToState() {
+    //value response one will be the result from the api  for instance it will be the same as response.value
+    //this represents one http request and one xml part
+    const valueResponseOne = [
+      {
+        pacts_name: "Active Duty - Airforce Jake Skellington",
+        pacts_retired: false
+      },
+      {
+        pacts_name: "Active Duty - Jake Skellington",
+        pacts_retired: true
+      }
+    ];
 
-      //This will establish a more unique namespace for functions in this library. This will reduce the
-      // potential for functions to be overwritten due to a duplicate name when the library is loaded.
+    //this represents one http responsse for one xml part
+    const valueResponseTwo = [
+      {
+        pacts_name: "Active Duty - Airforce Jake Skellington",
+        pacts_dateentered: "2020-12-01T00:00:00Z"
+      },
+      {
+        pacts_name: "Active Duty - Jake Skellington",
+        pacts_dateentered: "2020-12-01T00:00:00Z"
+      }
+    ];
+  }
 
-      var requestMain = "";
-      requestMain += '<s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/">';
-      requestMain += "  <s:Body>";
-      requestMain +=
-        '    <Execute xmlns="http://schemas.microsoft.com/xrm/2011/Contracts/Services" xmlns:i="http://www.w3.org/2001/XMLSchema-instance">';
-      requestMain +=
-        '      <request i:type="b:WhoAmIRequest" xmlns:a="http://schemas.microsoft.com/xrm/2011/Contracts" xmlns:b="http://schemas.microsoft.com/crm/2011/Contracts">';
-      requestMain +=
-        '        <a:Parameters xmlns:c="http://schemas.datacontract.org/2004/07/System.Collections.Generic" />';
-      requestMain += '        <a:RequestId i:nil="true" />';
-      requestMain += "        <a:RequestName>WhoAmI</a:RequestName>";
-      requestMain += "      </request>";
-      requestMain += "    </Execute>";
-      requestMain += "  </s:Body>";
-      requestMain += "</s:Envelope>";
-      var req = new XMLHttpRequest();
-      req.open("POST", serverUrl, true);
-      // Responses will return XML. It isn't possible to return JSON.
-      req.setRequestHeader("Accept", "application/xml, text/xml, */*");
-      req.setRequestHeader("Content-Type", "text/xml; charset=utf-8");
-      req.setRequestHeader(
-        "SOAPAction",
-        "http://schemas.microsoft.com/xrm/2011/Contracts/Services/IOrganizationService/Execute"
-      );
-
-      req.onreadystatechange = function() {
-        if (this.readyState === 4) {
-          req.onreadystatechange = null;
-          if (this.status === 200) {
-            var results = JSON.parse(this.response);
-            console.log("Justin Response ", results);
-          } else {
-            console.log("Error in App.tsx");
-            console.log(JSON.parse(this.response));
-          }
-        }
-      };
-      req.send(requestMain);
-
-      /*******************************************************************************************************/
-      await context.sync();
-    });
-  };
   addCaseIdToPart(currentComponent) {
     Office.onReady(function() {
       Word.run(async function(context) {
@@ -144,6 +122,7 @@ export default class App extends React.Component<AppProps, AppState> {
       console.log("Now ....", caseIdSplit);
       return caseIdSplit;
     }
+
     function createCaseIdXmlPart(caseId) {
       const xmlPartId = "caseId";
       const xmlString =
