@@ -31,3 +31,94 @@
     </filter>
   </entity>
 </fetch>
+
+[2:09 PM] Sarwarkhil, A. [Procentrix, Inc]
+    
+
+
+
+ 
+af7246c1-a4d8-4da5-9ccb-92cb0c61f0da
+
+
+
+
+​[2:09 PM] Sarwarkhil, A. [Procentrix, Inc]
+    
+
+
+
+ Incident Id's that have military records
+f6bca6a1-ea3f-eb11-a813-001dd8017e89
+
+ 
+c545391a-74f8-4708-9d6e-5f0a9f9be0e9
+
+ 
+4cebf769-72db-ea11-a813-001dd8017a00
+
+ 
+1b78090f-d975-eb11-a812-001dd801854f
+
+ 
+86515f25-0d55-eb11-a812-001dd8017e89
+
+ 
+08005825-a54b-eb11-a812-001dd8017e89
+
+ 
+5b01c516-ae64-eb11-a812-001dd80096e9
+
+Military fetch
+<fetch attribute="schemaname" operator="eq" >
+  <entity name="pacts_militaryrecord" >
+    <link-entity name="contact" from="contactid" to="pacts_clientid" >
+      <link-entity name="incident" from="customerid" to="contactid" >
+        <filter>
+          <condition attribute="incidentid" operator="eq" value="c545391a-74f8-4708-9d6e-5f0a9f9be0e9" />
+        </filter>
+      </link-entity>
+    </link-entity>
+  </entity>
+</fetch>
+
+
+var fetchXmlQuery = `<fetch attribute="schemaname" operator="eq" >
+  <entity name="pacts_militaryrecord" >
+    <link-entity name="contact" from="contactid" to="pacts_clientid" >
+      <link-entity name="incident" from="customerid" to="contactid" >
+        <filter>
+          <condition attribute="incidentid" operator="eq" value="c545391a-74f8-4708-9d6e-5f0a9f9be0e9" />
+        </filter>
+      </link-entity>
+    </link-entity>
+  </entity>
+</fetch>  
+`;  
+  
+var req = new XMLHttpRequest();  
+req.open(  
+  "GET",  
+  "https://pacts360-dev01.crm.microsoftdynamics.us" +  
+    "/api/data/v9.0/pacts_militaryrecord?fetchXml=" +  
+    encodeURIComponent(fetchXmlQuery),  
+  true  
+);  
+req.setRequestHeader("Prefer", 'odata.include-annotations="*"');  
+req.onreadystatechange = function() {  
+  if (this.readyState === 4) {  
+    req.onreadystatechange = null;  
+    if (this.status === 200) {  
+      var results = JSON.parse(this.response);  
+      console.log("Fetch in console ", results);  
+    } else {  
+      alert(this.statusText);  
+    }  
+  }  
+};  
+req.send();   
+
+
+
+
+
