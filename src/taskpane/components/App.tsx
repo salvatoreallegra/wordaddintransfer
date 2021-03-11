@@ -51,11 +51,21 @@ export default class App extends React.Component<AppProps, AppState> {
         }
       ],
       xmlWithCase: [],
-      xmlPartResponse: []
+      xmlPartResponse: {}
     });
 
     this.addCaseIdToPart(currentComponent);
-    this.mockResponseToState();
+    this.mockResponseToState(currentComponent);
+  }
+
+  printToken() {
+    Word.run(async function(context) {
+      // Create a proxy object for the content controls collection.
+
+      await context.sync();
+
+      //console.log("XML with case ", xmlWithCase);
+    });
   }
 
   componentDidUpdate() {
@@ -66,7 +76,26 @@ export default class App extends React.Component<AppProps, AppState> {
   }
   //This is a general look of what a fetchxml query might return
   //We will store the results in state for use in the content controls
-  mockResponseToState() {
+  mockResponseToState(currentComponent) {
+    // Office.getAccessToken(function(result) {
+    //   if (result.status === "succeeded") {
+    //     var token = result.value;
+    //     console.log(token);
+    //     // ...
+    //   } else {
+    //     console.log("Error obtaining token", result.error);
+    //   }
+    // });
+
+    Office.auth.getAccessToken(function(result) {
+      if (result.status === "succeeded") {
+        var token = result.value;
+        console.log(token);
+        // ...
+      } else {
+        console.log("Error obtaining token", result.error);
+      }
+    });
     //JOHN Pseudocode
     // foreach(content in ContentControl){
     //   const controlEntityName = //gets entity name from control
@@ -106,18 +135,17 @@ export default class App extends React.Component<AppProps, AppState> {
             ];
 
             //this represents one http responsse for one xml part
-            const valueResponseTwo = [
-              {
-                pacts_name: "Active Duty - Airforce Jake Skellington",
-                pacts_dateentered: "2020-12-01T00:00:00Z"
-              },
-              {
-                pacts_name: "Active Duty - Jake Skellington",
-                pacts_dateentered: "2020-12-01T00:00:00Z"
-              }
-            ];
+            // const valueResponseTwo = [
+            //   {
+            //     pacts_name: "Active Duty - Airforce Jake Skellington",
+            //     pacts_dateentered: "2020-12-01T00:00:00Z"
+            //   },
+            //   {
+            //     pacts_name: "Active Duty - Jake Skellington",
+            //     pacts_dateentered: "2020-12-01T00:00:00Z"
+            //   }
+            // ];
 
-            //loop through valueresponse and get the individual
             // const dataset = {
             //   entityName1: [], //array of values returned from response, for each value, we want to access the field value ideally like value.fieldName
             //   entityName2: [valuesHere],
@@ -127,13 +155,10 @@ export default class App extends React.Component<AppProps, AppState> {
             const dataset = {};
             dataset[tableName] = [valueResponseOne];
 
-            console.log(dataset);
+            console.log("data set, ", dataset);
 
-            this.setState({
-              xmlPartResponse: [...this.state.xmlPartResponse, valueResponseOne]
-            });
-            this.setState({
-              xmlPartResponse: [...this.state.xmlPartResponse, valueResponseTwo]
+            currentComponent.setState({
+              xmlPartResponse: [...currentComponent.state.xmlPartResponse, dataset]
             });
           });
         });
