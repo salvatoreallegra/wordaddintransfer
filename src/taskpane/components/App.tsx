@@ -3,7 +3,7 @@ import Header from "./Header";
 import { HeroListItem } from "./HeroList";
 import Progress from "./Progress";
 import { GroupedComponent } from "./GroupedComponent";
-//import { FetchXMLHelper } from "../../helpers/fetchXMLParser";
+import { FetchXMLHelper } from "../../helpers/fetchXMLParser";
 import { parseString, Builder } from "xml2js";
 // import { getFocusOutlineStyle } from "@uifabric/styling";
 // import { getScrollbarWidth, shallowCompare } from "@uifabric/utilities";
@@ -27,7 +27,7 @@ export default class App extends React.Component<AppProps, AppState> {
     this.state = {
       listItems: [],
       xmlWithCase: [],
-      xmlPartResponse: []
+      xmlPartResponse: {}
     };
     this.addCaseIdToPart = this.addCaseIdToPart.bind(this);
     this.mockResponseToState = this.mockResponseToState.bind(this);
@@ -67,28 +67,6 @@ export default class App extends React.Component<AppProps, AppState> {
   //This is a general look of what a fetchxml query might return
   //We will store the results in state for use in the content controls
   mockResponseToState() {
-    //value response one will be the result from the api  for instance it will be the same as response.value
-    //this represents one http request and one xml part
-    // Office.context.document.customXmlParts.getByNamespaceAsync("http://schemas.pacts.com/case", function(
-    //     eventArgs
-    //   ) {
-    //     //If there are no XML Parts in this namespace we create it.
-    //     if (eventArgs.value.length === 0) {
-    //       Office.context.document.customXmlParts.addAsync(xmlString, asyncResult => {
-    //         Office.context.document.settings.set(xmlPartId, asyncResult.value.id);
-
-    //         Office.context.document.settings.saveAsync(function(asyncResult) {
-    //           if (asyncResult.status == Office.AsyncResultStatus.Failed) {
-    //             console.log("Settings save failed. Error: " + asyncResult.error.message);
-    //           } else {
-    //             console.log("Saved new XML Part");
-    //           }
-    //         });
-    //       });
-    //     }
-    //   });
-    // }
-
     //JOHN Pseudocode
     // foreach(content in ContentControl){
     //   const controlEntityName = //gets entity name from control
@@ -107,40 +85,59 @@ export default class App extends React.Component<AppProps, AppState> {
     //   etc...
     // }
 
-    const numOfXmlPartsInDoc = 2;
+    Office.context.document.customXmlParts.getByNamespaceAsync("http://schemas.pacts.com/", eventArgs => {
+      eventArgs.value.forEach(item => {
+        Office.context.document.customXmlParts.getByIdAsync(item.id, result => {
+          var xmlPart = result.value;
+          xmlPart.getXmlAsync(function(eventArgs) {
+            const xmlHelper = new FetchXMLHelper(eventArgs.value);
+            xmlHelper.parseFetchXMLNoParams();
+            const groupsArray = xmlHelper.getStrippedGroups();
+            const tableName = groupsArray[0].name;
+            const valueResponseOne = [
+              {
+                pacts_name: "Active Duty - Airforce Jake Skellington",
+                pacts_retired: false
+              },
+              {
+                pacts_name: "Active Duty - Jake Skellington",
+                pacts_retired: true
+              }
+            ];
 
-    const valueResponseOne = [
-      {
-        pacts_name: "Active Duty - Airforce Jake Skellington",
-        pacts_retired: false
-      },
-      {
-        pacts_name: "Active Duty - Jake Skellington",
-        pacts_retired: true
-      }
-    ];
+            //this represents one http responsse for one xml part
+            const valueResponseTwo = [
+              {
+                pacts_name: "Active Duty - Airforce Jake Skellington",
+                pacts_dateentered: "2020-12-01T00:00:00Z"
+              },
+              {
+                pacts_name: "Active Duty - Jake Skellington",
+                pacts_dateentered: "2020-12-01T00:00:00Z"
+              }
+            ];
 
-    //this represents one http responsse for one xml part
-    const valueResponseTwo = [
-      {
-        pacts_name: "Active Duty - Airforce Jake Skellington",
-        pacts_dateentered: "2020-12-01T00:00:00Z"
-      },
-      {
-        pacts_name: "Active Duty - Jake Skellington",
-        pacts_dateentered: "2020-12-01T00:00:00Z"
-      }
-    ];
+            //loop through valueresponse and get the individual
+            // const dataset = {
+            //   entityName1: [], //array of values returned from response, for each value, we want to access the field value ideally like value.fieldName
+            //   entityName2: [valuesHere],
+            //   entityName3: [valuues],
+            //   etc...
+            // }
+            const dataset = {};
+            dataset[tableName] = [valueResponseOne];
 
-    for (let i = 0; i < numOfXmlPartsInDoc; i++) {
-      //mock fetch or post to logic app, whatever  axios.post
-      //add each response to state, will probably use getbynamespaceasync
-    }
-    this.setState({
-      xmlPartResponse: [...this.state.xmlPartResponse, valueResponseOne]
-    });
-    this.setState({
-      xmlPartResponse: [...this.state.xmlPartResponse, valueResponseTwo]
+            console.log(dataset);
+
+            this.setState({
+              xmlPartResponse: [...this.state.xmlPartResponse, valueResponseOne]
+            });
+            this.setState({
+              xmlPartResponse: [...this.state.xmlPartResponse, valueResponseTwo]
+            });
+          });
+        });
+      });
     });
   }
 

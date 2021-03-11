@@ -69,6 +69,48 @@ export class FetchXMLHelper {
       return tableFields;
   }
 
+  parseFetchXMLNoParams() {
+    var node = new DOMParser().parseFromString(this.fetchXML, "text/xml").documentElement;
+
+    var nodes = node.querySelectorAll("*");
+    var nodeName = null;
+    let nodeValue = null;    
+
+    let itemCounter = 0;
+    
+    for (var i = 0; i < nodes.length; i++) {      
+     
+      nodeName = nodes[i].nodeName; //get text value or the name of the node
+      nodeValue = nodes[i].getAttribute("name");
+      if (nodeName === "entity") {
+         this.groupsObj = {
+          key: uuid(),
+          name: nodeValue,
+          startIndex: 0,
+          count: itemCounter,
+          level: 0
+        };
+        
+       
+      }
+      if (nodeName === "attribute") {
+        let stateObj = {
+          key: uuid(),
+          name: nodeValue
+        };
+        itemCounter++;        
+        this.strippedItems.push(stateObj);
+      }
+    
+    }
+    
+    this.groupsObj["count"] = itemCounter;
+ 
+    this.strippedGroups.push(this.groupsObj);
+    //John: let tablesFields = this.getTablesFields();
+    
+  }
+
 
    insertFilterWithCaseId(caseId){    
     
