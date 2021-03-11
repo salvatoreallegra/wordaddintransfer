@@ -103,7 +103,7 @@ export class GroupedComponent extends React.Component<{}, IDetailsListGroupedExa
       var contentControls = context.document.contentControls;
 
       // Queue a command to load the id property for all of content controls.
-      context.load(contentControls, "id");
+      context.load(contentControls, "title, id");
 
       return context.sync().then(function() {
         if (contentControls.items.length === 0) {
@@ -113,6 +113,10 @@ export class GroupedComponent extends React.Component<{}, IDetailsListGroupedExa
             "<strong>HTML content inserted into the content control.</strong><table><tr><td>Hello</td><td>World</td></tr></table>",
             "Start"
           );
+
+          for (let i = 0; i < contentControls.items.length; i++) {
+            console.log("Content Control Titles " + contentControls.items[i].title);
+          }
         }
       });
     }).catch(function(error) {
@@ -163,7 +167,7 @@ export class GroupedComponent extends React.Component<{}, IDetailsListGroupedExa
     return Word.run(async context => {
       //Get all the xml parts for the namespace in the doc, then populate grid
 
-      Office.context.document.customXmlParts.getByNamespaceAsync("http://schemas.pacts.com/case", function(eventArgs) {
+      Office.context.document.customXmlParts.getByNamespaceAsync("http://schemas.pacts.com/", function(eventArgs) {
         console.log("Found " + eventArgs.value.length + " parts with this namespace");
         console.log("Event args", eventArgs);
         console.log("Event Args value ", eventArgs.value);

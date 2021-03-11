@@ -18,7 +18,7 @@ export interface AppProps {
 export interface AppState {
   listItems: HeroListItem[];
   xmlWithCase: [];
-  xmlPartResponse: [];
+  xmlPartResponse: any;
 }
 
 export default class App extends React.Component<AppProps, AppState> {
@@ -30,6 +30,7 @@ export default class App extends React.Component<AppProps, AppState> {
       xmlPartResponse: []
     };
     this.addCaseIdToPart = this.addCaseIdToPart.bind(this);
+    this.mockResponseToState = this.mockResponseToState.bind(this);
   }
 
   componentDidMount() {
@@ -52,16 +53,62 @@ export default class App extends React.Component<AppProps, AppState> {
       xmlWithCase: [],
       xmlPartResponse: []
     });
+
     this.addCaseIdToPart(currentComponent);
-    console.log("Please work state   ", this.state.xmlWithCase);
     this.mockResponseToState();
   }
 
+  componentDidUpdate() {
+    // Typical usage (don't forget to compare props):
+    //if (this.props.userID !== prevProps.userID) {
+    console.log("Lifecycle update ", this.state.xmlPartResponse);
+    //}
+  }
   //This is a general look of what a fetchxml query might return
   //We will store the results in state for use in the content controls
   mockResponseToState() {
     //value response one will be the result from the api  for instance it will be the same as response.value
     //this represents one http request and one xml part
+    // Office.context.document.customXmlParts.getByNamespaceAsync("http://schemas.pacts.com/case", function(
+    //     eventArgs
+    //   ) {
+    //     //If there are no XML Parts in this namespace we create it.
+    //     if (eventArgs.value.length === 0) {
+    //       Office.context.document.customXmlParts.addAsync(xmlString, asyncResult => {
+    //         Office.context.document.settings.set(xmlPartId, asyncResult.value.id);
+
+    //         Office.context.document.settings.saveAsync(function(asyncResult) {
+    //           if (asyncResult.status == Office.AsyncResultStatus.Failed) {
+    //             console.log("Settings save failed. Error: " + asyncResult.error.message);
+    //           } else {
+    //             console.log("Saved new XML Part");
+    //           }
+    //         });
+    //       });
+    //     }
+    //   });
+    // }
+
+    //JOHN Pseudocode
+    // foreach(content in ContentControl){
+    //   const controlEntityName = //gets entity name from control
+    //   const controlFieldName = //gets field name from control.
+    //   const dataset = //this is the dataset in state that has all the responses of data
+
+    //   dataset[controlEntityName] [0][controlFieldName] //grabs the first value for the given entity and field
+    // }
+
+    // so the dataset should be stored like
+
+    // const dataset = {
+    //   entityName1: [], //array of values returned from response, for each value, we want to access the field value ideally like value.fieldName
+    //   entityName2: [valuesHere],
+    //   entityName3: [valuues],
+    //   etc...
+    // }
+
+    const numOfXmlPartsInDoc = 2;
+
     const valueResponseOne = [
       {
         pacts_name: "Active Duty - Airforce Jake Skellington",
@@ -84,7 +131,46 @@ export default class App extends React.Component<AppProps, AppState> {
         pacts_dateentered: "2020-12-01T00:00:00Z"
       }
     ];
+
+    for (let i = 0; i < numOfXmlPartsInDoc; i++) {
+      //mock fetch or post to logic app, whatever  axios.post
+      //add each response to state, will probably use getbynamespaceasync
+    }
+    this.setState({
+      xmlPartResponse: [...this.state.xmlPartResponse, valueResponseOne]
+    });
+    this.setState({
+      xmlPartResponse: [...this.state.xmlPartResponse, valueResponseTwo]
+    });
   }
+
+  //iterate throgh controls and grab the control info so i can build the state above
+  grabContentControlData = async () => {
+    return Word.run(async context => {
+      /**
+       * Insert your Word code here
+       */
+      // Create a proxy object for the content controls collection.
+      var contentControls = context.document.contentControls;
+
+      // Queue a command to load the id property for all of content controls.
+      context.load(contentControls, "title, id");
+      if (contentControls.items.length === 0) {
+        console.log("No content control found.");
+      } else {
+        contentControls.items[0].insertHtml(
+          "<strong>HTML content inserted into the content control.</strong><table><tr><td>Hello</td><td>World</td></tr></table>",
+          "Start"
+        );
+
+        for (let i = 0; i < contentControls.items.length; i++) {
+          console.log("Content Control Titles " + contentControls.items[i].title);
+        }
+      }
+
+      await context.sync();
+    });
+  };
 
   addCaseIdToPart(currentComponent) {
     Office.onReady(function() {
@@ -149,7 +235,7 @@ export default class App extends React.Component<AppProps, AppState> {
       });
     }
     function insertCaseIdIntoXMLPart(caseId) {
-      Office.context.document.customXmlParts.getByNamespaceAsync("http://schemas.pacts.com/case", eventArgs => {
+      Office.context.document.customXmlParts.getByNamespaceAsync("http://schemas.pacts.com/", eventArgs => {
         eventArgs.value.forEach(item => {
           Office.context.document.customXmlParts.getByIdAsync(item.id, result => {
             var xmlPart = result.value;
@@ -157,6 +243,9 @@ export default class App extends React.Component<AppProps, AppState> {
               parseString(eventArgs.value, (err, result) => {
                 if (result) {
                   console.log("result now ...", result);
+                  for (const [key, value] of Object.entries(result)) {
+                    console.log("Keys and values ", `${key}: ${value}`);
+                  }
                   if (result.AddIn.fetch[0] !== null || result.AddIn.fetch[0] !== undefined) {
                     result.AddIn.fetch[0].entity[0].filter[0].condition[0].$.value = caseId;
 
