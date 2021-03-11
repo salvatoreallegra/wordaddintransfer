@@ -87,15 +87,15 @@ export default class App extends React.Component<AppProps, AppState> {
     //   }
     // });
 
-    Office.auth.getAccessToken(function(result) {
-      if (result.status === "succeeded") {
-        var token = result.value;
-        console.log(token);
-        // ...
-      } else {
-        console.log("Error obtaining token", result.error);
-      }
-    });
+    // Office.auth.getAccessToken(function(result) {
+    //   if (result.status === "succeeded") {
+    //     var token = result.value;
+    //     console.log(token);
+    //     // ...
+    //   } else {
+    //     console.log("Error obtaining token", result.error);
+    //   }
+    // });
     //JOHN Pseudocode
     // foreach(content in ContentControl){
     //   const controlEntityName = //gets entity name from control
