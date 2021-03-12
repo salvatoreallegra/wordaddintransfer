@@ -26,13 +26,42 @@
   <link-entity name="contact" from="contactid" to="pacts_clientid" >
   <link-entity name="incident" from="customerid" to="contactid" >
   <filter>
-  <condition attribute="incidentid" operator="eq" value="c545391a-74f8-4708-9d6e-5f0a9f9be0e9" />
+  <condition attribute="incidentid" operator="eq" value="_id_" />
   </filter>
   </link-entity>
   </link-entity>
   </entity>
   </fetch>
 </AddIn>
+
+<AddIn xmlns="http://schemas.pacts.com/">
+<fetch attribute="schemaname" operator="eq" >
+  <entity name="pacts_militaryrecord" >  
+  <link-entity name="contact" from="contactid" to="pacts_clientid" >
+  <link-entity name="incident" from="customerid" to="contactid" >
+  <filter>
+  <condition attribute="incidentid" operator="eq" value="_id_" />
+  </filter>
+  </link-entity>
+  </link-entity>
+  </entity>
+  </fetch>
+</AddIn>
+
+
+<fetch xmlns="http://schemas.pacts.com/" attribute="schemaname" operator="eq" >
+  <entity name="pacts_militaryrecord" >
+  <attribute name="pacts_dateentered" />  
+  <attribute name="pacts_name" />  
+  <link-entity name="contact" from="contactid" to="pacts_clientid" >
+  <link-entity name="incident" from="customerid" to="contactid" >
+  <filter>
+  <condition attribute="incidentid" operator="eq" value="_id_" />
+  </filter>
+  </link-entity>
+  </link-entity>
+  </entity>
+  </fetch>
 
 
 

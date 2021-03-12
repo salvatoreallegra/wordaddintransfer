@@ -72,6 +72,7 @@ export default class App extends React.Component<AppProps, AppState> {
     // Typical usage (don't forget to compare props):
     //if (this.props.userID !== prevProps.userID) {
     console.log("Lifecycle update ", this.state.xmlPartResponse);
+    console.log("Check this state now ", this.state.xmlPartResponse);
     //}
   }
   //This is a general look of what a fetchxml query might return
@@ -153,12 +154,12 @@ export default class App extends React.Component<AppProps, AppState> {
             //   etc...
             // }
             const dataset = {};
-            dataset[tableName] = [valueResponseOne];
+            dataset[tableName] = valueResponseOne;
 
             console.log("data set, ", dataset);
 
             currentComponent.setState({
-              xmlPartResponse: [...currentComponent.state.xmlPartResponse, dataset]
+              xmlPartResponse: dataset
             });
           });
         });
